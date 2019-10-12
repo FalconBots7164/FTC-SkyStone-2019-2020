@@ -33,7 +33,7 @@ public class autoTest extends LinearOpMode {
     //movement methods
     public void moveForward(double power, double inches) {
         if (opModeIsActive()) {
-            int frontLeftPosition = (int) (inches * encoderTicksPerInch);
+            int frontLeftPosition = frontLeft.getCurrentPosition() + (int) (inches * encoderTicksPerInch);
             frontLeft.setTargetPosition(frontLeftPosition);
             frontLeft.setPower(power);
             frontRight.setPower(power);
