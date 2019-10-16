@@ -142,6 +142,13 @@ public class autoTest extends LinearOpMode {
 
 
                     break;
+                    
+                default:
+                    
+                    telemetry.addData("Error","Something went wrong");
+                    telemetry.update();
+                    
+                    break;
             }
         }
     }
