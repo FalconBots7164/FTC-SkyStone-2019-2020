@@ -14,7 +14,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
 @Autonomous
-public class test2 extends LinearOpMode {
+public class imuTest extends LinearOpMode {
 
     //This program works in Euler angles, and since the robot is parallel to the ground,
     //we want it to rotate around the z-axis (Yaw, or Psi), which is perpendicular to the ground.
