@@ -1,22 +1,22 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
+@Autonomous
 public class autoTest extends LinearOpMode {
 
     //VARIABLES
     final static double pi = 3.1415;
-    final static double ticksPerRevolution = 1100; //placeholder, will need to be changed. rev hex motors are 40:1, so it could possibly be 1200/1100 again.
+    final static double ticksPerRevolution = 1440; //torquenado tetrix 60:1
     final static double wheelDiameter = 4;
     final static double wheelCircumference = (wheelDiameter * pi);
     final static double encoderTicksPerInch = (ticksPerRevolution / wheelCircumference);
 
     //device variables
-    DcMotor frontLeft;
-    DcMotor frontRight;
-    DcMotor backLeft;
-    DcMotor backRight;
+    DcMotor frontLeft, frontRight, backLeft, backRight;
 
     //METHODS
 
@@ -97,6 +97,11 @@ public class autoTest extends LinearOpMode {
         backLeft = hardwareMap.dcMotor.get("Back Left");
         backRight = hardwareMap.dcMotor.get("Back Right");
 
+        //make all motor directions uniform
+        frontRight.setDirection(DcMotorSimple.Direction.REVERSE);
+        backRight.setDirection(DcMotorSimple.Direction.REVERSE);
+
+
         //initialize encoders
         telemetry.addData("Status", "Resetting Encoders");
         telemetry.update();
@@ -132,22 +137,24 @@ public class autoTest extends LinearOpMode {
                 case stepOne:
 
                     moveForward(.7, 12);
+                    changeState(programSteps.stepTwo);
 
                     break;
                 case stepTwo:
 
+                    changeState(programSteps.stepThree);
 
                     break;
                 case stepThree:
 
 
                     break;
-                    
+
                 default:
-                    
+
                     telemetry.addData("Error","Something went wrong");
                     telemetry.update();
-                    
+
                     break;
             }
         }
