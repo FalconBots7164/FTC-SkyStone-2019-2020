@@ -14,16 +14,20 @@ public class teleOpMode extends OpMode {
     double power = .7;
     boolean toggle = false;
 
+    Robot robot = new Robot();
+
     @Override
     public void init() {
 
-        frontLeft = hardwareMap.dcMotor.get("Front Left");
-        frontRight = hardwareMap.dcMotor.get("Front Right");
-        backLeft = hardwareMap.dcMotor.get("Back Left");
-        backRight = hardwareMap.dcMotor.get("Back Right");
+//        frontLeft = hardwareMap.dcMotor.get("Front Left");
+//        frontRight = hardwareMap.dcMotor.get("Front Right");
+//        backLeft = hardwareMap.dcMotor.get("Back Left");
+//        backRight = hardwareMap.dcMotor.get("Back Right");
+//
+//        frontRight.setDirection(DcMotorSimple.Direction.REVERSE);
+//        backRight.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        frontRight.setDirection(DcMotorSimple.Direction.REVERSE);
-        backRight.setDirection(DcMotorSimple.Direction.REVERSE);
+        robot.initializeHardware();
 
     }
 
