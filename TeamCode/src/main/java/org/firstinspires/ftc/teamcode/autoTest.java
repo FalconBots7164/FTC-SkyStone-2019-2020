@@ -10,7 +10,7 @@ public class autoTest extends LinearOpMode {
 
     //VARIABLES
     final static double pi = 3.1415;
-    final static double ticksPerRevolution = 2240; //rev hex motor
+    final static double ticksPerRevolution = 1120; //rev hex motor
     final static double wheelDiameter = 4;
     final static double wheelCircumference = (wheelDiameter * pi);
     final static double encoderTicksPerInch = (ticksPerRevolution / wheelCircumference);
@@ -176,6 +176,7 @@ public class autoTest extends LinearOpMode {
 
                 case stop:
                     stopRobot();
+                    break;
 
                 default:
 
