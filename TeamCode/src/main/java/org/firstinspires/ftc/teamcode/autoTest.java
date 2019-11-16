@@ -175,6 +175,7 @@ public class autoTest extends LinearOpMode {
                     break;
 
                 case stop:
+                    stopRobot();
 
                 default:
 
