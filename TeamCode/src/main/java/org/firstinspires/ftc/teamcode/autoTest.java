@@ -10,7 +10,7 @@ public class autoTest extends LinearOpMode {
 
     //VARIABLES
     final static double pi = 3.1415;
-    final static double ticksPerRevolution = 1440; //torquenado tetrix 60:1
+    final static double ticksPerRevolution = 1120; //rev hex motor
     final static double wheelDiameter = 4;
     final static double wheelCircumference = (wheelDiameter * pi);
     final static double encoderTicksPerInch = (ticksPerRevolution / wheelCircumference);
@@ -21,9 +21,11 @@ public class autoTest extends LinearOpMode {
     //METHODS
 
     //methods for state machine
-    public void changeState(programSteps newState) {
+    private void changeState(programSteps newState) {
         step = newState;
     }
+
+    public void resetState() { changeState(programSteps.stepOne); }
 
     public programSteps getState() {
         return step;
@@ -79,11 +81,34 @@ public class autoTest extends LinearOpMode {
         }
     }
 
+    public void stopRobot() {
+        frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        frontRight.setPower(0);
+        frontLeft.setPower(0);
+        backRight.setPower(0);
+        backLeft.setPower(0);
+
+        frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        frontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        frontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        backRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    }
+
     //state machine
     public enum programSteps {
         stepOne,
         stepTwo,
-        stepThree
+        stepThree,
+        stop
     }
 
     programSteps step;
@@ -132,22 +157,25 @@ public class autoTest extends LinearOpMode {
         //autonomous begins after this
         waitForStart();
 
+        resetState();
+
         while (opModeIsActive()) {
             switch (step) {
                 case stepOne:
-
-                    moveForward(.7, 12);
                     changeState(programSteps.stepTwo);
-
                     break;
+
                 case stepTwo:
-
+                    moveForward(.7, 12);
                     changeState(programSteps.stepThree);
-
                     break;
+
                 case stepThree:
+                    changeState(programSteps.stop);
+                    break;
 
-
+                case stop:
+                    stopRobot();
                     break;
 
                 default:

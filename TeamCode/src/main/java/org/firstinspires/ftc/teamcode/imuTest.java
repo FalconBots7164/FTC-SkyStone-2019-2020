@@ -81,7 +81,6 @@ public class imuTest extends LinearOpMode {
         return correction;
     }
 
-//test
 
     //positive degrees rotates left, negative rotates right.
     public void rotateRobot(double power, int degrees) {
@@ -150,6 +149,15 @@ public class imuTest extends LinearOpMode {
 
     }
 
+    public void stopRobot() {
+
+        frontLeft.setPower(0);
+        frontRight.setPower(0);
+        backLeft.setPower(0);
+        backRight.setPower(0);
+
+    }
+
     @Override
     public void runOpMode() throws InterruptedException {
 
@@ -170,8 +178,14 @@ public class imuTest extends LinearOpMode {
         parameters.loggingTag = "IMU";
         imu.initialize(parameters);
 
-        frontRight.setDirection(DcMotorSimple.Direction.REVERSE);
+        backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         backRight.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
 
         //initializing IMU
         telemetry.addData("IMU", "Initializing...");
@@ -194,7 +208,8 @@ public class imuTest extends LinearOpMode {
             correction = correctDirection();
             moveForward(.5, 2000);
             sleep(1000);
-            rotateRobot(.5, 90);
+            rotateRobot(.25, 90);
+            stopRobot();
 
             while (opModeIsActive()) {
                 telemetry.addData("1 imu heading", lastAngles.firstAngle);
