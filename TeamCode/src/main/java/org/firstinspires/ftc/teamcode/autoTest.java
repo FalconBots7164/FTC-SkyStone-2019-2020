@@ -78,6 +78,13 @@ public class autoTest extends LinearOpMode {
                 telemetry.addData("Back Right Ticks", backRight.getCurrentPosition());
                 telemetry.update();
             }
+            
+            //make the motors stop once the target is reached.
+            frontLeft.setPower(0);
+            frontRight.setPower(0);
+            backLeft.setPower(0);
+            backRight.setPower(0);
+            
         }
     }
 
