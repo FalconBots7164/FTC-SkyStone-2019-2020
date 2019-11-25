@@ -11,9 +11,9 @@ public class autoTest extends LinearOpMode {
     //VARIABLES
     final static double pi = 3.1415;
     final static double ticksPerRevolution = 1120; //rev hex motor
-    final static double wheelDiameter = 4;
-    final static double wheelCircumference = (wheelDiameter * pi);
-    final static double encoderTicksPerInch = (ticksPerRevolution / wheelCircumference);
+    final static double wheelDiameter = 4.0;
+    final static double wheelGearRatio = 1.0;
+    final static double encoderTicksPerInch = (ticksPerRevolution * wheelGearRatio) / (wheelDiameter * pi);
 
     //device variables
     DcMotor frontLeft, frontRight, backLeft, backRight;
@@ -41,10 +41,10 @@ public class autoTest extends LinearOpMode {
         if (opModeIsActive()) {
 
             //creating the variables that will tell the encoder how many ticks to travel
-            int frontLeftPosition = frontLeft.getCurrentPosition() + (int) (inches * encoderTicksPerInch);
-            int frontRightPosition = frontRight.getCurrentPosition() + (int) (inches * encoderTicksPerInch);
-            int backLeftPosition = backLeft.getCurrentPosition() + (int) (inches * encoderTicksPerInch);
-            int backRightPosition = backRight.getCurrentPosition() + (int) (inches * encoderTicksPerInch);
+            int frontLeftTarget = frontLeft.getCurrentPosition() + (int) (inches * encoderTicksPerInch);
+            int frontRightTarget = frontRight.getCurrentPosition() + (int) (inches * encoderTicksPerInch);
+            int backLeftTarget = backLeft.getCurrentPosition() + (int) (inches * encoderTicksPerInch);
+            int backRightTarget = backRight.getCurrentPosition() + (int) (inches * encoderTicksPerInch);
 
             //setting the aforementioned variables as the target position
             frontLeft.setTargetPosition(frontLeftPosition);
@@ -59,8 +59,8 @@ public class autoTest extends LinearOpMode {
             backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
             //setting the power for the motors to move while travelling towards target
-            frontLeft.setPower(-power);
-            frontRight.setPower(-power);
+            frontLeft.setPower(power);
+            frontRight.setPower(power);
             backLeft.setPower(power);
             backRight.setPower(power);
 
@@ -166,11 +166,12 @@ public class autoTest extends LinearOpMode {
                     break;
 
                 case stepTwo:
-                    moveForward(.7, 12);
+                    moveForward(.75, 12);
                     changeState(programSteps.stepThree);
                     break;
 
                 case stepThree:
+                    moveForward(.25, 6)
                     changeState(programSteps.stop);
                     break;
 
