@@ -47,10 +47,10 @@ public class autoTest extends LinearOpMode {
             int backRightTarget = backRight.getCurrentPosition() + (int) (inches * encoderTicksPerInch);
 
             //setting the aforementioned variables as the target position
-            frontLeft.setTargetPosition(frontLeftPosition);
-            frontRight.setTargetPosition(frontRightPosition);
-            backLeft.setTargetPosition(backLeftPosition);
-            backRight.setTargetPosition(backRightPosition);
+            frontLeft.setTargetPosition(frontLeftTarget);
+            frontRight.setTargetPosition(frontRightTarget);
+            backLeft.setTargetPosition(backLeftTarget);
+            backRight.setTargetPosition(backRightTarget);
 
             //telling the motors to start moving towards target
             frontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -71,19 +71,24 @@ public class autoTest extends LinearOpMode {
             backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
             //telemetries to tell the user how many ticks the encoder is travelling
-            while (opModeIsActive() && frontLeft.isBusy() && frontRight.isBusy() && backLeft.isBusy() && backRight.isBusy()) {
+            while (opModeIsActive() || frontLeft.isBusy() || frontRight.isBusy() || backLeft.isBusy() || backRight.isBusy()) {
                 telemetry.addData("Front Left Ticks", frontLeft.getCurrentPosition());
                 telemetry.addData("Front Right Ticks", frontRight.getCurrentPosition());
                 telemetry.addData("Back Left Ticks", backLeft.getCurrentPosition());
                 telemetry.addData("Back Right Ticks", backRight.getCurrentPosition());
+
+                telemetry.addData("Front Left Target", frontLeftTarget);
+                telemetry.addData("Front Right Target", frontRightTarget);
+                telemetry.addData("Back Left Target", backLeftTarget);
+                telemetry.addData("Back Right Target", backRightTarget);
                 telemetry.update();
             }
             
-            //make the motors stop once the target is reached.
-            frontLeft.setPower(0);
-            frontRight.setPower(0);
-            backLeft.setPower(0);
-            backRight.setPower(0);
+//            //make the motors stop once the target is reached.
+//            frontLeft.setPower(0);
+//            frontRight.setPower(0);
+//            backLeft.setPower(0);
+//            backRight.setPower(0);
             
         }
     }
@@ -130,8 +135,8 @@ public class autoTest extends LinearOpMode {
         backRight = hardwareMap.dcMotor.get("Back Right");
 
         //make all motor directions uniform
-        frontRight.setDirection(DcMotorSimple.Direction.REVERSE);
-        backRight.setDirection(DcMotorSimple.Direction.REVERSE);
+        frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
 
 
         //initialize encoders
@@ -170,20 +175,28 @@ public class autoTest extends LinearOpMode {
             switch (step) {
                 case stepOne:
                     changeState(programSteps.stepTwo);
+                    telemetry.addData("Step", getState());
+                    telemetry.update();
                     break;
 
                 case stepTwo:
-                    moveForward(.75, 12);
+                    moveForward(0, 12);
                     changeState(programSteps.stepThree);
+                    telemetry.addData("Step", getState());
+                    telemetry.update();
                     break;
 
                 case stepThree:
-                    moveForward(.25, 6)
+  //                  moveForward(.25, 6);
                     changeState(programSteps.stop);
+                    telemetry.addData("Step", getState());
+                    telemetry.update();
                     break;
 
                 case stop:
-                    stopRobot();
+//                    stopRobot();
+                    telemetry.addData("Step", getState());
+
                     break;
 
                 default:
