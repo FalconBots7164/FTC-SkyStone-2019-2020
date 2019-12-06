@@ -11,9 +11,9 @@ public class autoTest extends LinearOpMode {
     //VARIABLES
     final static double pi = 3.1415;
     final static double ticksPerRevolution = 1120; //rev hex motor
-    final static double wheelDiameter = 4;
-    final static double wheelCircumference = (wheelDiameter * pi);
-    final static double encoderTicksPerInch = (ticksPerRevolution / wheelCircumference);
+    final static double wheelDiameter = 4.0;
+    final static double wheelGearRatio = 1.0;
+    final static double encoderTicksPerInch = (ticksPerRevolution * wheelGearRatio) / (wheelDiameter * pi);
 
     //device variables
     DcMotor frontLeft, frontRight, backLeft, backRight;
@@ -43,16 +43,16 @@ public class autoTest extends LinearOpMode {
         if (opModeIsActive()) {
 
             //creating the variables that will tell the encoder how many ticks to travel
-            int frontLeftPosition = frontLeft.getCurrentPosition() + (int) (inches * encoderTicksPerInch);
-            int frontRightPosition = frontRight.getCurrentPosition() + (int) (inches * encoderTicksPerInch);
-            int backLeftPosition = backLeft.getCurrentPosition() + (int) (inches * encoderTicksPerInch);
-            int backRightPosition = backRight.getCurrentPosition() + (int) (inches * encoderTicksPerInch);
+            int frontLeftTarget = frontLeft.getCurrentPosition() + (int) (inches * encoderTicksPerInch);
+            int frontRightTarget = frontRight.getCurrentPosition() + (int) (inches * encoderTicksPerInch);
+            int backLeftTarget = backLeft.getCurrentPosition() + (int) (inches * encoderTicksPerInch);
+            int backRightTarget = backRight.getCurrentPosition() + (int) (inches * encoderTicksPerInch);
 
             //setting the aforementioned variables as the target position
-            frontLeft.setTargetPosition(frontLeftPosition);
-            frontRight.setTargetPosition(frontRightPosition);
-            backLeft.setTargetPosition(backLeftPosition);
-            backRight.setTargetPosition(backRightPosition);
+            frontLeft.setTargetPosition(frontLeftTarget);
+            frontRight.setTargetPosition(frontRightTarget);
+            backLeft.setTargetPosition(backLeftTarget);
+            backRight.setTargetPosition(backRightTarget);
 
             //telling the motors to start moving towards target
             frontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -61,8 +61,8 @@ public class autoTest extends LinearOpMode {
             backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
             //setting the power for the motors to move while travelling towards target
-            frontLeft.setPower(-power);
-            frontRight.setPower(-power);
+            frontLeft.setPower(power);
+            frontRight.setPower(power);
             backLeft.setPower(power);
             backRight.setPower(power);
 
@@ -73,13 +73,25 @@ public class autoTest extends LinearOpMode {
             backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
             //telemetries to tell the user how many ticks the encoder is travelling
-            while (opModeIsActive() && frontLeft.isBusy() && frontRight.isBusy() && backLeft.isBusy() && backRight.isBusy()) {
+            while (opModeIsActive() || frontLeft.isBusy() || frontRight.isBusy() || backLeft.isBusy() || backRight.isBusy()) {
                 telemetry.addData("Front Left Ticks", frontLeft.getCurrentPosition());
                 telemetry.addData("Front Right Ticks", frontRight.getCurrentPosition());
                 telemetry.addData("Back Left Ticks", backLeft.getCurrentPosition());
                 telemetry.addData("Back Right Ticks", backRight.getCurrentPosition());
+
+                telemetry.addData("Front Left Target", frontLeftTarget);
+                telemetry.addData("Front Right Target", frontRightTarget);
+                telemetry.addData("Back Left Target", backLeftTarget);
+                telemetry.addData("Back Right Target", backRightTarget);
                 telemetry.update();
             }
+            
+//            //make the motors stop once the target is reached.
+//            frontLeft.setPower(0);
+//            frontRight.setPower(0);
+//            backLeft.setPower(0);
+//            backRight.setPower(0);
+            
         }
     }
 
@@ -125,8 +137,8 @@ public class autoTest extends LinearOpMode {
         backRight = hardwareMap.dcMotor.get("Back Right");
 
         //make all motor directions uniform
-        frontRight.setDirection(DcMotorSimple.Direction.REVERSE);
-        backRight.setDirection(DcMotorSimple.Direction.REVERSE);
+        frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
 
 
         //initialize encoders
@@ -165,19 +177,28 @@ public class autoTest extends LinearOpMode {
             switch (step) {
                 case stepOne:
                     changeState(programSteps.stepTwo);
+                    telemetry.addData("Step", getState());
+                    telemetry.update();
                     break;
 
                 case stepTwo:
-                    moveForward(.7, 12);
+                    moveForward(.5, 12);
                     changeState(programSteps.stepThree);
+                    telemetry.addData("Step", getState());
+                    telemetry.update();
                     break;
 
                 case stepThree:
+  //                  moveForward(.25, 6);
                     changeState(programSteps.stop);
+                    telemetry.addData("Step", getState());
+                    telemetry.update();
                     break;
 
                 case stop:
-                    stopRobot();
+//                    stopRobot();
+                    telemetry.addData("Step", getState());
+
                     break;
 
                 default:
