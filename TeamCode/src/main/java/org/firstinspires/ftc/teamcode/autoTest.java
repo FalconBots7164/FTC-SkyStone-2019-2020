@@ -25,7 +25,9 @@ public class autoTest extends LinearOpMode {
         step = newState;
     }
 
-    public void resetState() { changeState(programSteps.stepOne); }
+    public void resetState() {
+        changeState(programSteps.stepOne);
+    }
 
     public programSteps getState() {
         return step;
