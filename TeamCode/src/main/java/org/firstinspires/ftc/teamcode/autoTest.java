@@ -180,7 +180,7 @@ public class autoTest extends LinearOpMode {
                     break;
 
                 case stepTwo:
-                    moveForward(0, 12);
+                    moveForward(.5, 12);
                     changeState(programSteps.stepThree);
                     telemetry.addData("Step", getState());
                     telemetry.update();
