@@ -4,6 +4,13 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
@@ -44,8 +51,8 @@ public class teleOpModeDAM extends OpMode {
 
         if (gamepad1.dpad_left || gamepad1.left_bumper) { /* Strafe Left???? */
 
-            frontLeft.setPower(-power);
-            frontRight.setPower(-power);
+            frontLeft.setPower(power);
+            frontRight.setPower(power);
             backLeft.setPower(power);
             backRight.setPower(power);
 
@@ -53,8 +60,8 @@ public class teleOpModeDAM extends OpMode {
 
         if (gamepad1.dpad_right) {
 
-            frontLeft.setPower(power);
-            frontRight.setPower(power);
+            frontLeft.setPower(-power);
+            frontRight.setPower(-power);
             backLeft.setPower(-power);
             backRight.setPower(-power);
 
@@ -100,4 +107,4 @@ public class teleOpModeDAM extends OpMode {
     }
 }
 
-
+//Peoperoni W mayo

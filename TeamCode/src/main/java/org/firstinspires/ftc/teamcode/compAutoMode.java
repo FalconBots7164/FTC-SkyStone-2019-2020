@@ -280,11 +280,13 @@ public class compAutoMode extends LinearOpMode {
         resetAngle();
 
         if (degrees < 0) {
+            //Right
             frontLeft.setPower(power);
             frontRight.setPower(-power);
             backLeft.setPower(power);
             backRight.setPower(-power);
         } else if (degrees > 0) {
+            //Left
             frontLeft.setPower(-power);
             frontRight.setPower(power);
             backLeft.setPower(-power);
