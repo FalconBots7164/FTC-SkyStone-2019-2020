@@ -3,6 +3,13 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -12,10 +19,23 @@ import static android.os.SystemClock.sleep;
 @TeleOp
 public class teleOpModeDAM extends OpMode {
 //damian
+    // actual code for the main robot
+    //xPushed was not used in Noah's previous code
+    int xPushed = 0;
+
     DcMotor frontLeft;
     DcMotor frontRight;
     DcMotor backLeft;
     DcMotor backRight;
+    DcMotor lift;
+    DcMotor rightMotor;
+    DcMotor leftMotor;
+    DcMotor arm;
+    Servo claw;
+    Servo idol;
+    CRServo armClaw;
+    CRServo slide;
+    CRServo sweeper;
 
     double power = .7;
   //boolean toggle = false;
@@ -30,9 +50,22 @@ public class teleOpModeDAM extends OpMode {
         frontLeft = hardwareMap.dcMotor.get("Front Left");
         frontRight = hardwareMap.dcMotor.get("Front Right");
         backLeft = hardwareMap.dcMotor.get("Back Left");
-        backRight = hardwareMap.dcMotor.get("Back Right");
 
+        backRight = hardwareMap.dcMotor.get("Back Right");
+//this kush is the code we took from mister Noah's Git
+        rightMotor = hardwareMap.dcMotor.get("Right");
+        leftMotor = hardwareMap.dcMotor.get("Left");
+        lift = hardwareMap.dcMotor.get("Lift");
+        arm = hardwareMap.dcMotor.get("Arm");
+        claw = hardwareMap.servo.get("Claw");
+        idol = hardwareMap.servo.get("Idol");
+        armClaw = hardwareMap.crservo.get("ArmClaw");
+        slide = hardwareMap.crservo.get("Slide");
+        sweeper = hardwareMap.crservo.get("Sweeper");
+        claw.setPosition(0);
+        idol.setPosition(.9);
     }
+
 
     @Override
     public void loop() {
@@ -74,6 +107,8 @@ public class teleOpModeDAM extends OpMode {
             backLeft.setPower(-power);
             backRight.setPower(power);
         }
+
+
 
         /////////////////////////////////////////
 
