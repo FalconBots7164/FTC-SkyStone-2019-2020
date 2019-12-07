@@ -88,15 +88,15 @@ public class imuTest extends LinearOpMode {
         resetAngle();
 
         if (degrees < 0) {
-            frontLeft.setPower(-power);
-            frontRight.setPower(power);
-            backLeft.setPower(-power);
-            backRight.setPower(power);
-        } else if (degrees > 0) {
             frontLeft.setPower(power);
             frontRight.setPower(-power);
             backLeft.setPower(power);
             backRight.setPower(-power);
+        } else if (degrees > 0) {
+            frontLeft.setPower(-power);
+            frontRight.setPower(power);
+            backLeft.setPower(-power);
+            backRight.setPower(power);
         }
 
         //exit method if there is no need to rotate
@@ -178,8 +178,10 @@ public class imuTest extends LinearOpMode {
         parameters.loggingTag = "IMU";
         imu.initialize(parameters);
 
+//        backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+//        backRight.setDirection(DcMotorSimple.Direction.REVERSE);
+        frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
-        backRight.setDirection(DcMotorSimple.Direction.REVERSE);
 
         frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -208,7 +210,7 @@ public class imuTest extends LinearOpMode {
             correction = correctDirection();
             moveForward(.5, 2000);
             sleep(1000);
-            rotateRobot(.25, 90);
+            rotateRobot(.15, 90);
             stopRobot();
 
             while (opModeIsActive()) {

@@ -17,7 +17,7 @@ public class teleOpModeDAM extends OpMode {
     DcMotor backLeft;
     DcMotor backRight;
 
-    double power = 7;
+    double power = .7;
   //boolean toggle = false;
 
     double[] change = {.35, .7};

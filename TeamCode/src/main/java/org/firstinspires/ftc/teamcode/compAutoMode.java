@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -26,6 +27,7 @@ import static org.firstinspires.ftc.robotcore.external.navigation.AxesReference.
 import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection.BACK;
 import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection.FRONT;
 
+@Autonomous
 public class compAutoMode extends LinearOpMode {
 
     //VARIABLES
@@ -60,7 +62,7 @@ public class compAutoMode extends LinearOpMode {
     private static final float halfField = 72 * mmPerInch;
     private static final float quadField  = 36 * mmPerInch;
     private static final String VUFORIA_KEY = "AXijc37/////AAAAGR8Zcpk0OkqfpylpmW5pYTAUkEXgtaFwGrLNLr0pw2tXVyNQrJxgegKHKQkDqhX4BfvI/i8II0jj9TXN1WPENa4GY/VYLsafTjuTTSJHctF5OCHh/XH13hEAsGDzW6tFE6SOf8hMHJpKWcv9neasODelhb5jedgNmgYgg9PCOpKPtn66pjIIZoK4XGvj8gH1+sx9WO5Bl3zwDx6IJPDPilKCQ8hhoWyN6g4yck1/ty7dxwx7DDWQ307lSlcg6DINlMaYsR4CIptbTzNE6SSahJPIAL6isd5pYK8iNI2jYyNLRARlTMo1Ps1+KAVUuDo1GI+vvsg/iGCdkjLfZ2qEf415rfqMWgsEAv3dsZs3sdbp";
-    private static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = BACK;
+    private static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = FRONT;
     private static final boolean PHONE_IS_PORTRAIT = false  ;
     private OpenGLMatrix lastLocation = null;
     private boolean navIsFound = false;
@@ -70,7 +72,7 @@ public class compAutoMode extends LinearOpMode {
     DcMotor frontLeft, frontRight, backLeft, backRight;
 
     //gyro variables
-    double globalAngle, correction;
+    double globalAngle/*, correction*/;
     BNO055IMU imu;
     Orientation lastAngles = new Orientation();
 
@@ -122,7 +124,7 @@ public class compAutoMode extends LinearOpMode {
             backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
             //telemetries to tell the user how many ticks the encoder is travelling
-            while (opModeIsActive() || frontLeft.isBusy() || frontRight.isBusy() || backLeft.isBusy() || backRight.isBusy()) {
+            while (opModeIsActive() && frontLeft.isBusy() && frontRight.isBusy() && backLeft.isBusy() && backRight.isBusy()) {
                 telemetry.addData("Front Left Ticks", frontLeft.getCurrentPosition());
                 telemetry.addData("Front Right Ticks", frontRight.getCurrentPosition());
                 telemetry.addData("Back Left Ticks", backLeft.getCurrentPosition());
@@ -134,6 +136,77 @@ public class compAutoMode extends LinearOpMode {
                 telemetry.addData("Back Right Target", backRightTarget);
                 telemetry.update();
             }
+
+            frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+            frontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            frontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            backRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            backLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        }
+    }
+
+    public void moveHorizontal(double power, double inches) {
+
+        if (opModeIsActive()) {
+
+            //creating the variables that will tell the encoder how many ticks to travel
+            int frontLeftTarget = frontLeft.getCurrentPosition() + (int) (inches * encoderTicksPerInch);
+            int frontRightTarget = frontRight.getCurrentPosition() + (int) (inches * encoderTicksPerInch);
+            int backLeftTarget = backLeft.getCurrentPosition() + (int) (inches * encoderTicksPerInch);
+            int backRightTarget = backRight.getCurrentPosition() + (int) (inches * encoderTicksPerInch);
+
+            //setting the aforementioned variables as the target position
+            frontLeft.setTargetPosition(frontLeftTarget);
+            frontRight.setTargetPosition(frontRightTarget);
+            backLeft.setTargetPosition(backLeftTarget);
+            backRight.setTargetPosition(backRightTarget);
+
+            //telling the motors to start moving towards target
+            frontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            frontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+            //setting the power for the motors to move while travelling towards target
+            frontLeft.setPower(-power);
+            frontRight.setPower(power);
+            backLeft.setPower(power);
+            backRight.setPower(-power);
+
+            //telling the motors to brake when power is zero (when target is reached).
+            frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+            //telemetries to tell the user how many ticks the encoder is travelling
+            while (opModeIsActive() && frontLeft.isBusy() && frontRight.isBusy() && backLeft.isBusy() && backRight.isBusy()) {
+                telemetry.addData("Front Left Ticks", frontLeft.getCurrentPosition());
+                telemetry.addData("Front Right Ticks", frontRight.getCurrentPosition());
+                telemetry.addData("Back Left Ticks", backLeft.getCurrentPosition());
+                telemetry.addData("Back Right Ticks", backRight.getCurrentPosition());
+
+                telemetry.addData("Front Left Target", frontLeftTarget);
+                telemetry.addData("Front Right Target", frontRightTarget);
+                telemetry.addData("Back Left Target", backLeftTarget);
+                telemetry.addData("Back Right Target", backRightTarget);
+                telemetry.update();
+            }
+
+            frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+            frontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            frontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            backRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            backLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
         }
     }
 
@@ -148,15 +221,6 @@ public class compAutoMode extends LinearOpMode {
         backRight.setPower(0);
         backLeft.setPower(0);
 
-        frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-        frontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        frontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        backRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        backLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
     public void resetAngle() {
@@ -194,15 +258,15 @@ public class compAutoMode extends LinearOpMode {
         resetAngle();
 
         if (degrees < 0) {
-            frontLeft.setPower(-power);
-            frontRight.setPower(power);
-            backLeft.setPower(-power);
-            backRight.setPower(power);
-        } else if (degrees > 0) {
             frontLeft.setPower(power);
             frontRight.setPower(-power);
             backLeft.setPower(power);
             backRight.setPower(-power);
+        } else if (degrees > 0) {
+            frontLeft.setPower(-power);
+            frontRight.setPower(power);
+            backLeft.setPower(-power);
+            backRight.setPower(power);
         }
 
         //exit method if there is no need to rotate
@@ -213,15 +277,24 @@ public class compAutoMode extends LinearOpMode {
         //right
         if (degrees < 0) {
             while (opModeIsActive() && getAngle() == 0) {
+                telemetry.addData("Degrees", lastAngles.firstAngle);
+                telemetry.addData("Global Angle", globalAngle);
+                telemetry.update();
             }
 
             while (opModeIsActive() && getAngle() > degrees) {
+                telemetry.addData("Degrees", lastAngles.firstAngle);
+                telemetry.addData("Global Angle", globalAngle);
+                telemetry.update();
             }
         }
 
         //left
         else {
             while (opModeIsActive() && getAngle() < degrees) {
+                telemetry.addData("Degrees", lastAngles.firstAngle);
+                telemetry.addData("Global Angle", globalAngle);
+                telemetry.update();
             }
         }
 
@@ -229,8 +302,6 @@ public class compAutoMode extends LinearOpMode {
         frontRight.setPower(0);
         backLeft.setPower(0);
         backRight.setPower(0);
-
-        sleep(1000);
 
         resetAngle();
 
@@ -254,6 +325,7 @@ public class compAutoMode extends LinearOpMode {
         frontRight = hardwareMap.dcMotor.get("Front Right");
         backLeft = hardwareMap.dcMotor.get("Back Left");
         backRight = hardwareMap.dcMotor.get("Back Right");
+        imu = hardwareMap.get(BNO055IMU.class, "IMU");
 
         //make all motor directions uniform
         frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -426,6 +498,11 @@ public class compAutoMode extends LinearOpMode {
         while (opModeIsActive()) {
             switch (step) {
                 case stepOne:
+                    moveForward(.7,12);
+                    telemetry.addData("Status", "bruh");
+                    telemetry.update();
+                    rotateRobot(.5,90);
+                    moveHorizontal(.25, 6);
                     changeState(programSteps.stepTwo);
                     break;
 
@@ -449,6 +526,5 @@ public class compAutoMode extends LinearOpMode {
                     break;
             }
         }
-
     }
 }
