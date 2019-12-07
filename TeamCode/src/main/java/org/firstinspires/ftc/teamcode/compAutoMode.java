@@ -39,16 +39,16 @@ public class compAutoMode extends LinearOpMode {
     final static double wheelGearRatio = 1.0;
     final static double encoderTicksPerInch = (ticksPerRevolution * wheelGearRatio) / (wheelDiameter * pi);
 
-    private static final float mmPerInch        = 25.4f;
-    private static final float mmTargetHeight   = (6) * mmPerInch;          // the height of the center of the target image above the floor
+    private static final float mmPerInch = 25.4f;
+    private static final float mmTargetHeight = (6) * mmPerInch;          // the height of the center of the target image above the floor
 
     // Constant for Stone Target
     private static final float stoneZ = 2.00f * mmPerInch;
 
     private boolean targetVisible = false;
-    private float phoneXRotate    = 0;
-    private float phoneYRotate    = 0;
-    private float phoneZRotate    = 0;
+    private float phoneXRotate = 0;
+    private float phoneYRotate = 0;
+    private float phoneZRotate = 0;
 
 
     // Constants for the center support targets
@@ -60,10 +60,10 @@ public class compAutoMode extends LinearOpMode {
 
     // Constants for perimeter targets
     private static final float halfField = 72 * mmPerInch;
-    private static final float quadField  = 36 * mmPerInch;
+    private static final float quadField = 36 * mmPerInch;
     private static final String VUFORIA_KEY = "AXijc37/////AAAAGR8Zcpk0OkqfpylpmW5pYTAUkEXgtaFwGrLNLr0pw2tXVyNQrJxgegKHKQkDqhX4BfvI/i8II0jj9TXN1WPENa4GY/VYLsafTjuTTSJHctF5OCHh/XH13hEAsGDzW6tFE6SOf8hMHJpKWcv9neasODelhb5jedgNmgYgg9PCOpKPtn66pjIIZoK4XGvj8gH1+sx9WO5Bl3zwDx6IJPDPilKCQ8hhoWyN6g4yck1/ty7dxwx7DDWQ307lSlcg6DINlMaYsR4CIptbTzNE6SSahJPIAL6isd5pYK8iNI2jYyNLRARlTMo1Ps1+KAVUuDo1GI+vvsg/iGCdkjLfZ2qEf415rfqMWgsEAv3dsZs3sdbp";
     private static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = FRONT;
-    private static final boolean PHONE_IS_PORTRAIT = false  ;
+    private static final boolean PHONE_IS_PORTRAIT = false;
     private OpenGLMatrix lastLocation = null;
     private boolean navIsFound = false;
     private VuforiaLocalizer vuforia;
@@ -83,7 +83,9 @@ public class compAutoMode extends LinearOpMode {
         step = newState;
     }
 
-    public void resetState() { changeState(programSteps.stepOne); }
+    public void resetState() {
+        changeState(programSteps.stepOne);
+    }
 
     public programSteps getState() {
         return step;
@@ -92,6 +94,16 @@ public class compAutoMode extends LinearOpMode {
     public void moveForward(double power, double inches) {
 
         if (opModeIsActive()) {
+
+            frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+            frontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            frontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            backRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            backLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
             //creating the variables that will tell the encoder how many ticks to travel
             int frontLeftTarget = frontLeft.getCurrentPosition() + (int) (inches * encoderTicksPerInch);
@@ -153,10 +165,20 @@ public class compAutoMode extends LinearOpMode {
 
         if (opModeIsActive()) {
 
+            frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+            frontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            frontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            backRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            backLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
             //creating the variables that will tell the encoder how many ticks to travel
             int frontLeftTarget = frontLeft.getCurrentPosition() + (int) (inches * encoderTicksPerInch);
-            int frontRightTarget = frontRight.getCurrentPosition() + (int) (inches * encoderTicksPerInch);
-            int backLeftTarget = backLeft.getCurrentPosition() + (int) (inches * encoderTicksPerInch);
+            int frontRightTarget = frontRight.getCurrentPosition() + (int) (-inches * encoderTicksPerInch);
+            int backLeftTarget = backLeft.getCurrentPosition() + (int) (-inches * encoderTicksPerInch);
             int backRightTarget = backRight.getCurrentPosition() + (int) (inches * encoderTicksPerInch);
 
             //setting the aforementioned variables as the target position
@@ -172,10 +194,10 @@ public class compAutoMode extends LinearOpMode {
             backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
             //setting the power for the motors to move while travelling towards target
-            frontLeft.setPower(-power);
+            frontLeft.setPower(power);
             frontRight.setPower(power);
             backLeft.setPower(power);
-            backRight.setPower(-power);
+            backRight.setPower(power);
 
             //telling the motors to brake when power is zero (when target is reached).
             frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -258,11 +280,13 @@ public class compAutoMode extends LinearOpMode {
         resetAngle();
 
         if (degrees < 0) {
+            //Right
             frontLeft.setPower(power);
             frontRight.setPower(-power);
             backLeft.setPower(power);
             backRight.setPower(-power);
         } else if (degrees > 0) {
+            //Left
             frontLeft.setPower(-power);
             frontRight.setPower(power);
             backLeft.setPower(-power);
@@ -444,7 +468,7 @@ public class compAutoMode extends LinearOpMode {
 
         front1.setLocation(OpenGLMatrix
                 .translation(-halfField, -quadField, mmTargetHeight)
-                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0 , 90)));
+                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0, 90)));
 
         front2.setLocation(OpenGLMatrix
                 .translation(-halfField, quadField, mmTargetHeight)
@@ -460,7 +484,7 @@ public class compAutoMode extends LinearOpMode {
 
         rear1.setLocation(OpenGLMatrix
                 .translation(halfField, quadField, mmTargetHeight)
-                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0 , -90)));
+                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0, -90)));
 
         rear2.setLocation(OpenGLMatrix
                 .translation(halfField, -quadField, mmTargetHeight)
@@ -474,7 +498,7 @@ public class compAutoMode extends LinearOpMode {
 
         // Rotate the phone vertical about the X axis if it's in portrait mode
         if (PHONE_IS_PORTRAIT) {
-            phoneXRotate = 90 ;
+            phoneXRotate = 90;
         }
 
         final int CAMERA_FORWARD_DISPLACEMENT = 110;   // eg: Camera is 110 mm in front of robot center
@@ -488,7 +512,7 @@ public class compAutoMode extends LinearOpMode {
             ((VuforiaTrackableDefaultListener) trackable.getListener()).setPhoneInformation(phoneLocationOnRobot, parametersVuf.cameraDirection);
         }
 
-        telemetry.addData("Status", "Encoders, Gyro and Vuforia Ready");
+        telemetry.addData("Status", "Everything Ready");
         telemetry.update();
 
         waitForStart();
@@ -498,11 +522,9 @@ public class compAutoMode extends LinearOpMode {
         while (opModeIsActive()) {
             switch (step) {
                 case stepOne:
-                    moveForward(.7,12);
-                    telemetry.addData("Status", "bruh");
-                    telemetry.update();
-                    rotateRobot(.5,90);
-                    moveHorizontal(.25, 6);
+                    moveForward(.7, 12);
+                    rotateRobot(.5, 90);
+                    moveHorizontal(.25, 12);
                     changeState(programSteps.stepTwo);
                     break;
 
