@@ -19,10 +19,23 @@ import static android.os.SystemClock.sleep;
 @TeleOp
 public class teleOpModeDAM extends OpMode {
 //damian
+
+    int xPushed = 0;
+
     DcMotor frontLeft;
     DcMotor frontRight;
     DcMotor backLeft;
     DcMotor backRight;
+
+    DcMotor rightMotor;
+    DcMotor leftMotor;
+    DcMotor lift;
+    DcMotor arm;
+    Servo claw;
+    Servo idol;
+    CRServo armClaw;
+    CRServo slide;
+    CRServo sweeper;
 
     double power = .7;
   //boolean toggle = false;
@@ -38,6 +51,19 @@ public class teleOpModeDAM extends OpMode {
         frontRight = hardwareMap.dcMotor.get("Front Right");
         backLeft = hardwareMap.dcMotor.get("Back Left");
         backRight = hardwareMap.dcMotor.get("Back Right");
+
+        rightMotor = hardwareMap.dcMotor.get("Right");
+        leftMotor = hardwareMap.dcMotor.get("Left");
+        lift = hardwareMap.dcMotor.get("Lift");
+        arm = hardwareMap.dcMotor.get("Arm");
+        claw = hardwareMap.servo.get("Claw");
+        idol = hardwareMap.servo.get("Idol");
+        armClaw = hardwareMap.crservo.get("ArmClaw");
+        slide = hardwareMap.crservo.get("Slide");
+        sweeper = hardwareMap.crservo.get("Sweeper");
+        claw.setPosition(0);
+        idol.setPosition(.9);
+        //       slide.setPosition(.5);
 
     }
 
