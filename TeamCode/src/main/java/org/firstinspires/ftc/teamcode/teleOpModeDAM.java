@@ -44,8 +44,8 @@ public class teleOpModeDAM extends OpMode {
 
         if (gamepad1.dpad_left || gamepad1.left_bumper) { /* Strafe Left???? */
 
-            frontLeft.setPower(-power);
-            frontRight.setPower(-power);
+            frontLeft.setPower(power);
+            frontRight.setPower(power);
             backLeft.setPower(power);
             backRight.setPower(power);
 
