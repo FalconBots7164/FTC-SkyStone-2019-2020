@@ -93,9 +93,9 @@ public class teleOpModeDAM extends OpMode {
                 telemetry.addData("INACTIVE.", power);  /* same */
                 break;
             }
-            else {
-                telemetry.addData("ERR"," ERR");
-            }
+//            else {
+//                telemetry.addData("ERR"," ERR");
+//            }
 
         }
 

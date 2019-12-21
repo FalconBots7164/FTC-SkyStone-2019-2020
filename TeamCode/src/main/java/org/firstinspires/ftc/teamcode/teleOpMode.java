@@ -12,7 +12,8 @@ public class teleOpMode extends OpMode {
     DcMotor frontLeft, frontRight, backLeft, backRight;
 
     double power = .7;
-    boolean toggle = false;
+    boolean isToggled = false;
+    boolean lock = false;
 
 //    Robot robot = new Robot(hwMap);
 
@@ -75,16 +76,30 @@ public class teleOpMode extends OpMode {
 
         }
 
-        if (gamepad1.a && !toggle) {
-            toggle = true;
-            if (toggle) {
-                power /= 2;
-                toggle = false;
-            }
-            else if (gamepad1.a && toggle) {
-                power *= 2;
-                toggle = false;
-            }
+        if(gamepad1.a && !isToggled && !lock) {
+            power = .25;
+            isToggled = true;
+            lock = true;
         }
+        else if (gamepad1.a && isToggled && !lock) {
+            power = .7;
+            isToggled = false;
+            lock = true;
+        }
+        else if (!gamepad1.a && lock) {
+            lock = false;
+        }
+
+//        if (gamepad1.a && !toggle) {
+//            toggle = true;
+//            if (toggle) {
+//                power /= 2;
+//                toggle = false;
+//            }
+//            else if (gamepad1.a && toggle) {
+//                power *= 2;
+//                toggle = false;
+//            }
+//        }
     }
 }
