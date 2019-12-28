@@ -40,34 +40,34 @@ public class teleOpMode extends OpMode {
         backLeft.setPower(gamepad1.left_stick_y * power);
         backRight.setPower(gamepad1.right_stick_y * power);
 
-        if (gamepad1.dpad_left) {
+        if (gamepad1.dpad_right) {
 
             frontLeft.setPower(-power);
-            frontRight.setPower(power);
+            frontRight.setPower(-power);
             backLeft.setPower(power);
+            backRight.setPower(power);
+
+        }
+
+        if (gamepad1.dpad_left) {
+
+            frontLeft.setPower(power);
+            frontRight.setPower(power);
+            backLeft.setPower(-power);
             backRight.setPower(-power);
 
         }
 
-        if (gamepad1.dpad_right) {
+        if (gamepad1.dpad_down) {
 
             frontLeft.setPower(power);
-            frontRight.setPower(-power);
-            backLeft.setPower(-power);
+            frontRight.setPower(power);
+            backLeft.setPower(power);
             backRight.setPower(power);
 
         }
 
         if (gamepad1.dpad_up) {
-
-            frontLeft.setPower(power);
-            frontRight.setPower(power);
-            backLeft.setPower(power);
-            backRight.setPower(power);
-
-        }
-
-        if (gamepad1.dpad_down) {
 
             frontLeft.setPower(-power);
             frontRight.setPower(-power);
@@ -89,17 +89,6 @@ public class teleOpMode extends OpMode {
         else if (!gamepad1.a && lock) {
             lock = false;
         }
-
-//        if (gamepad1.a && !toggle) {
-//            toggle = true;
-//            if (toggle) {
-//                power /= 2;
-//                toggle = false;
-//            }
-//            else if (gamepad1.a && toggle) {
-//                power *= 2;
-//                toggle = false;
-//            }
-//        }
+        telemetry.addData("Toggle:", isToggled);
     }
 }
