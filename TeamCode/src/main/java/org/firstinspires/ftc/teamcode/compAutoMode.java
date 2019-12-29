@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
@@ -39,8 +40,8 @@ public class compAutoMode extends LinearOpMode {
     final static double wheelGearRatio = 1.0;
     final static double encoderTicksPerInch = (ticksPerRevolution * wheelGearRatio) / (wheelDiameter * pi);
 
-    private static final float mmPerInch = 25.4f;
-    private static final float mmTargetHeight = (6) * mmPerInch;          // the height of the center of the target image above the floor
+    private static final float mmPerInch        = 25.4f;
+    private static final float mmTargetHeight   = (6) * mmPerInch;          // the height of the center of the target image above the floor
 
     // Constant for Stone Target
     private static final float stoneZ = 2.00f * mmPerInch;
@@ -61,18 +62,21 @@ public class compAutoMode extends LinearOpMode {
     // Constants for perimeter targets
     private static final float halfField = 72 * mmPerInch;
     private static final float quadField = 36 * mmPerInch;
-    private static final String VUFORIA_KEY = "AXijc37/////AAAAGR8Zcpk0OkqfpylpmW5pYTAUkEXgtaFwGrLNLr0pw2tXVyNQrJxgegKHKQkDqhX4BfvI/i8II0jj9TXN1WPENa4GY/VYLsafTjuTTSJHctF5OCHh/XH13hEAsGDzW6tFE6SOf8hMHJpKWcv9neasODelhb5jedgNmgYgg9PCOpKPtn66pjIIZoK4XGvj8gH1+sx9WO5Bl3zwDx6IJPDPilKCQ8hhoWyN6g4yck1/ty7dxwx7DDWQ307lSlcg6DINlMaYsR4CIptbTzNE6SSahJPIAL6isd5pYK8iNI2jYyNLRARlTMo1Ps1+KAVUuDo1GI+vvsg/iGCdkjLfZ2qEf415rfqMWgsEAv3dsZs3sdbp";
-    private static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = FRONT;
-    private static final boolean PHONE_IS_PORTRAIT = false;
+
+    //Vuforia
+    private static final String VUFORIA_KEY = "ARZTw9L/////AAABmRmjM+ct9kkHs003U+Tv11d8yVGXCaI6tYp7lTtQqnvd4p6/5LdopGJP6+8imxm2HZdj88a0AZu48Q7DeqbAtiIDf/ZAcOFqFmlKwbFrRzLfiJMXOcsLL4KkmKwrZwxXDWsLBwchPrj4uZGnoeg3PVLHo4bVVeYU7wkOFlR146ZEbuhvHS0ml+HFeOCAsIwW4B/joj9mdDMkEvFhosKv8ZzLUfAThvTlMNp6Me/QPv4qu/4fXlFkHbrgGRjT2dau0FHCaU8j26MYIJdgIt+QUDmN/xxG9QlFDHJZjkeid3CnmLsqOxbp7HbLFI8pv7TRWVY68RIjZIs1NcSTakz6RVyUl3lt555JNtM7vVMYEzU9";
+    private static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = BACK;
+    private static final boolean PHONE_IS_PORTRAIT = false  ;
     private OpenGLMatrix lastLocation = null;
     private boolean navIsFound = false;
-    private VuforiaLocalizer vuforia;
+    private VuforiaLocalizer vuforia = null;
+    WebcamName webcamName = null;
 
     //device variables
     DcMotor frontLeft, frontRight, backLeft, backRight;
 
     //gyro variables
-    double globalAngle/*, correction*/;
+    double globalAngle;
     BNO055IMU imu;
     Orientation lastAngles = new Orientation();
 
@@ -311,6 +315,16 @@ public class compAutoMode extends LinearOpMode {
                 telemetry.addData("Global Angle", globalAngle);
                 telemetry.update();
             }
+            //over-rot check
+            //hopefully can combat the over-rotating, by rotating in the other direction.
+            if (getAngle() < degrees) {
+                while (opModeIsActive() && getAngle() < degrees) {
+                    frontLeft.setPower(-power);
+                    frontRight.setPower(power);
+                    backLeft.setPower(-power);
+                    backRight.setPower(power);
+                }
+            }
         }
 
         //left
@@ -319,6 +333,15 @@ public class compAutoMode extends LinearOpMode {
                 telemetry.addData("Degrees", lastAngles.firstAngle);
                 telemetry.addData("Global Angle", globalAngle);
                 telemetry.update();
+            }
+            //over-rot check
+            if (getAngle() > degrees) {
+                while (opModeIsActive() && getAngle() > degrees) {
+                    frontLeft.setPower(power);
+                    frontRight.setPower(-power);
+                    backLeft.setPower(power);
+                    backRight.setPower(-power);
+                }
             }
         }
 
@@ -350,6 +373,7 @@ public class compAutoMode extends LinearOpMode {
         backLeft = hardwareMap.dcMotor.get("Back Left");
         backRight = hardwareMap.dcMotor.get("Back Right");
         imu = hardwareMap.get(BNO055IMU.class, "IMU");
+        webcamName = hardwareMap.get(WebcamName.class, "Webcam 1");
 
         //make all motor directions uniform
         frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -402,6 +426,7 @@ public class compAutoMode extends LinearOpMode {
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         VuforiaLocalizer.Parameters parametersVuf = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
         parametersVuf.vuforiaLicenseKey = VUFORIA_KEY;
+        parametersVuf.cameraName = webcamName;
         parametersVuf.cameraDirection = CAMERA_CHOICE;
         vuforia = ClassFactory.getInstance().createVuforia(parametersVuf);
         VuforiaTrackables targetsSkyStone = this.vuforia.loadTrackablesFromAsset("Skystone");
@@ -544,7 +569,7 @@ public class compAutoMode extends LinearOpMode {
 
                     telemetry.addData("Error", "Something went wrong");
                     telemetry.update();
-
+                    stopRobot();
                     break;
             }
         }
