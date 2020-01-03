@@ -5,16 +5,20 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Gamepad;
+import com.qualcomm.robotcore.hardware.Servo;
 
 @TeleOp
 public class teleOpMode extends OpMode {
 
-    DcMotor frontLeft, frontRight, backLeft, backRight;
+    DcMotor frontLeft, frontRight, backLeft, backRight, lift, slide;
+    Servo claw;
 
-    double power = .7;
-    boolean toggle = false;
-
-//    Robot robot = new Robot(hwMap);
+    double powerA = .7;
+    double powerB = .7;
+    boolean isToggledA = false;
+    boolean lockA = false;
+    boolean isToggledB = false;
+    boolean lockB = false;
 
     @Override
     public void init() {
@@ -23,68 +27,107 @@ public class teleOpMode extends OpMode {
         frontRight = hardwareMap.dcMotor.get("Front Right");
         backLeft = hardwareMap.dcMotor.get("Back Left");
         backRight = hardwareMap.dcMotor.get("Back Right");
+        lift = hardwareMap.dcMotor.get("Lift");
+        slide = hardwareMap.dcMotor.get("Slide");
+        claw = hardwareMap.servo.get("Claw");
 
         frontRight.setDirection(DcMotorSimple.Direction.REVERSE);
         backRight.setDirection(DcMotorSimple.Direction.REVERSE);
-
- //       robot.initializeHardware();
+        
+        claw.setPosition(0);
 
     }
 
     @Override
     public void loop() {
 
-        frontLeft.setPower(gamepad1.left_stick_y * power);
-        frontRight.setPower(gamepad1.right_stick_y * power);
-        backLeft.setPower(gamepad1.left_stick_y * power);
-        backRight.setPower(gamepad1.right_stick_y * power);
-
-        if (gamepad1.dpad_left) {
-
-            frontLeft.setPower(-power);
-            frontRight.setPower(power);
-            backLeft.setPower(power);
-            backRight.setPower(-power);
-
-        }
+        //tank drive
+        frontLeft.setPower(gamepad1.left_stick_y * powerA);
+        frontRight.setPower(gamepad1.right_stick_y * powerA);
+        backLeft.setPower(gamepad1.left_stick_y * powerA);
+        backRight.setPower(gamepad1.right_stick_y * powerA);
 
         if (gamepad1.dpad_right) {
 
-            frontLeft.setPower(power);
-            frontRight.setPower(-power);
-            backLeft.setPower(-power);
-            backRight.setPower(power);
+            frontLeft.setPower(-powerA);
+            frontRight.setPower(-powerA);
+            backLeft.setPower(powerA);
+            backRight.setPower(powerA);
+
+        }
+
+        //strafe
+        if (gamepad1.dpad_left) {
+
+            frontLeft.setPower(powerA);
+            frontRight.setPower(-powerA);
+            backLeft.setPower(powerA);
+            backRight.setPower(-powerA);
+
+        }
+
+        //forward/backwards
+        if (gamepad1.dpad_down) {
+
+            frontLeft.setPower(-powerA);
+            frontRight.setPower(-powerA);
+            backLeft.setPower(-powerA);
+            backRight.setPower(-powerA);
 
         }
 
         if (gamepad1.dpad_up) {
 
-            frontLeft.setPower(power);
-            frontRight.setPower(power);
-            backLeft.setPower(power);
-            backRight.setPower(power);
+            frontLeft.setPower(powerA);
+            frontRight.setPower(powerA);
+            backLeft.setPower(powerA);
+            backRight.setPower(powerA);
 
         }
 
-        if (gamepad1.dpad_down) {
-
-            frontLeft.setPower(-power);
-            frontRight.setPower(-power);
-            backLeft.setPower(-power);
-            backRight.setPower(-power);
-
+        //speed toggleA
+        if(gamepad1.a && !isToggledA && !lockA) {
+            powerA = .25;
+            isToggledA = true;
+            lockA = true;
+        }
+        else if (gamepad1.a && isToggledA && !lockA) {
+            powerA = .7;
+            isToggledA = false;
+            lockA = true;
+        }
+        else if (!gamepad1.a && lockA) {
+            lockA = false;
         }
 
-        if (gamepad1.a && !toggle) {
-            toggle = true;
-            if (toggle) {
-                power /= 2;
-                toggle = false;
-            }
-            else if (gamepad1.a && toggle) {
-                power *= 2;
-                toggle = false;
-            }
+        //gamepad2
+        slide.setPower(gamepad2.right_stick_y * powerB);
+        lift.setPower(gamepad2.left_stick_y * powerB);
+
+        if(gamepad2.a && !isToggledB && !lockB) {
+            powerB = .25;
+            isToggledB = true;
+            lockB = true;
         }
+        else if (gamepad2.a && isToggledB && !lockB) {
+            powerB = .7;
+            isToggledB = false;
+            lockB = true;
+        }
+        else if (!gamepad2.a && lockB) {
+            lockB = false;
+        }
+
+
+        //servo
+        if (gamepad2.y) {
+            claw.setPosition(.5);
+        }
+        else {
+            claw.setPosition(0);
+        }
+
+        telemetry.addData("Gamepad 1 Toggle:", isToggledA);
+        telemetry.addData("Gamepad 2 Toggle:", isToggledB);
     }
 }
