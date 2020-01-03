@@ -327,10 +327,10 @@ public class compAutoMode extends LinearOpMode {
             //hopefully can combat the over-rotating, by rotating in the other direction.
             if (getAngle() < degrees) {
                 while (opModeIsActive() && getAngle() < degrees) {
-                    frontLeft.setPower(-power);
-                    frontRight.setPower(power);
-                    backLeft.setPower(-power);
-                    backRight.setPower(power);
+                    frontLeft.setPower(-power * .25);
+                    frontRight.setPower(power * .25);
+                    backLeft.setPower(-power * .25);
+                    backRight.setPower(power * .25);
                 }
             }
         }
@@ -345,10 +345,10 @@ public class compAutoMode extends LinearOpMode {
             //over-rot check
             if (getAngle() > degrees) {
                 while (opModeIsActive() && getAngle() > degrees) {
-                    frontLeft.setPower(power);
-                    frontRight.setPower(-power);
-                    backLeft.setPower(power);
-                    backRight.setPower(-power);
+                    frontLeft.setPower(power * .25);
+                    frontRight.setPower(-power * .25);
+                    backLeft.setPower(power * .25);
+                    backRight.setPower(-power * .25);
                 }
             }
         }
