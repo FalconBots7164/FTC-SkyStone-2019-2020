@@ -17,9 +17,11 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
+import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.*;
 
 import static org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.DEGREES;
 import static org.firstinspires.ftc.robotcore.external.navigation.AxesOrder.XYZ;
@@ -34,11 +36,10 @@ public class compAutoMode extends LinearOpMode {
     //VARIABLES
 
     //Constants for encoders
-    final static double pi = 3.1415;
     final static double ticksPerRevolution = 1120; //rev hex motor
     final static double wheelDiameter = 4.0;
     final static double wheelGearRatio = 1.0;
-    final static double encoderTicksPerInch = (ticksPerRevolution * wheelGearRatio) / (wheelDiameter * pi);
+    final static double encoderTicksPerInch = (ticksPerRevolution * wheelGearRatio) / (wheelDiameter * Math.PI);
 
     private static final float mmPerInch        = 25.4f;
     private static final float mmTargetHeight   = (6) * mmPerInch;          // the height of the center of the target image above the floor
@@ -71,6 +72,13 @@ public class compAutoMode extends LinearOpMode {
     private boolean navIsFound = false;
     private VuforiaLocalizer vuforia = null;
     WebcamName webcamName = null;
+
+    //TensorFlow
+    private static final String TFOD_MODEL_ASSET = "Skystone.tflite";
+    private static final String LABEL_FIRST_ELEMENT = "Stone";
+    private static final String LABEL_SECOND_ELEMENT = "Skystone";
+    private TFObjectDetector tfod;
+
 
     //device variables
     DcMotor frontLeft, frontRight, backLeft, backRight;
@@ -536,6 +544,16 @@ public class compAutoMode extends LinearOpMode {
         for (VuforiaTrackable trackable : allTrackables) {
             ((VuforiaTrackableDefaultListener) trackable.getListener()).setPhoneInformation(phoneLocationOnRobot, parametersVuf.cameraDirection);
         }
+
+        telemetry.addData("Status", "Initializing TensorFlow");
+        telemetry.update();
+
+        int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
+                "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
+        tfodParameters.minimumConfidence = 0.8;
+        tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
+        tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_FIRST_ELEMENT, LABEL_SECOND_ELEMENT);
 
         telemetry.addData("Status", "Everything Ready");
         telemetry.update();
