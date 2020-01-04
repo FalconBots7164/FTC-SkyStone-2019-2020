@@ -43,8 +43,8 @@ public class compAutoMode extends LinearOpMode {
     final static double wheelGearRatio = 1.0;
     final static double encoderTicksPerInch = (ticksPerRevolution * wheelGearRatio) / (wheelDiameter * Math.PI);
 
-    private static final float mmPerInch        = 25.4f;
-    private static final float mmTargetHeight   = (6) * mmPerInch;          // the height of the center of the target image above the floor
+    private static final float mmPerInch = 25.4f;
+    private static final float mmTargetHeight = (6) * mmPerInch;          // the height of the center of the target image above the floor
 
     // Constant for Stone Target
     private static final float stoneZ = 2.00f * mmPerInch;
@@ -69,7 +69,7 @@ public class compAutoMode extends LinearOpMode {
     //Vuforia
     private static final String VUFORIA_KEY = "ARZTw9L/////AAABmRmjM+ct9kkHs003U+Tv11d8yVGXCaI6tYp7lTtQqnvd4p6/5LdopGJP6+8imxm2HZdj88a0AZu48Q7DeqbAtiIDf/ZAcOFqFmlKwbFrRzLfiJMXOcsLL4KkmKwrZwxXDWsLBwchPrj4uZGnoeg3PVLHo4bVVeYU7wkOFlR146ZEbuhvHS0ml+HFeOCAsIwW4B/joj9mdDMkEvFhosKv8ZzLUfAThvTlMNp6Me/QPv4qu/4fXlFkHbrgGRjT2dau0FHCaU8j26MYIJdgIt+QUDmN/xxG9QlFDHJZjkeid3CnmLsqOxbp7HbLFI8pv7TRWVY68RIjZIs1NcSTakz6RVyUl3lt555JNtM7vVMYEzU9";
     private static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = BACK;
-    private static final boolean PHONE_IS_PORTRAIT = false  ;
+    private static final boolean PHONE_IS_PORTRAIT = false;
     private OpenGLMatrix lastLocation = null;
     private boolean navIsFound = false;
     private VuforiaLocalizer vuforia = null;
@@ -158,8 +158,7 @@ public class compAutoMode extends LinearOpMode {
                 telemetry.addData("Back Right Target", backRightTarget);
                 telemetry.update();
             }
-        }
-        else if (opModeIsActive() && inches == 0){
+        } else if (opModeIsActive() && inches == 0) {
             frontLeft.setPower(power);
             frontRight.setPower(power);
             backLeft.setPower(power);
@@ -229,8 +228,7 @@ public class compAutoMode extends LinearOpMode {
                 telemetry.addData("Back Right Target", backRightTarget);
                 telemetry.update();
             }
-        }
-        else if (opModeIsActive() && inches == 0){
+        } else if (opModeIsActive() && inches == 0) {
             frontLeft.setPower(-power);
             frontRight.setPower(-power);
             backLeft.setPower(power);
@@ -262,8 +260,7 @@ public class compAutoMode extends LinearOpMode {
                 telemetry.addData("Slide Target", slideTarget);
                 telemetry.update();
             }
-        }
-        else if (opModeIsActive() && inches == 0){
+        } else if (opModeIsActive() && inches == 0) {
             slide.setPower(power);
             slide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             slide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -284,8 +281,7 @@ public class compAutoMode extends LinearOpMode {
                 telemetry.addData("Lift Target", liftTarget);
                 telemetry.update();
             }
-        }
-        else if (opModeIsActive() && inches == 0){
+        } else if (opModeIsActive() && inches == 0) {
             lift.setPower(power);
             lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             lift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -632,10 +628,23 @@ public class compAutoMode extends LinearOpMode {
                     targetVisible = false;
                     while (opModeIsActive() && !targetVisible) {
                         moveHorizontal(.4, 0);
-                        if (((VuforiaTrackableDefaultListener)stoneTarget.getListener()).isVisible()) {
+                        if (((VuforiaTrackableDefaultListener) stoneTarget.getListener()).isVisible()) {
                             stopRobot();
                             targetVisible = true;
                         }
+                    }
+                    while (opModeIsActive() && targetVisible) {
+                        moveHorizontal(.4, 0);
+                        OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener) stoneTarget.getListener()).getUpdatedRobotLocation();
+                        if (robotLocationTransform != null) {
+                            lastLocation = robotLocationTransform;
+                        }
+                            VectorF translation = lastLocation.getTranslation();
+                            telemetry.addData("Pos (in)", "{X, Y, Z} = %.1f, %.1f, %.1f",
+                                    translation.get(0) / mmPerInch, translation.get(1) / mmPerInch, translation.get(2) / mmPerInch);
+                            if (translation.get(1) == 0) {
+
+                            }
                     }
 
                     moveForward(.5, 20);
