@@ -60,8 +60,8 @@ public class teleOpMode extends OpMode {
         if (gamepad1.dpad_left) {
 
             frontLeft.setPower(powerA);
-            frontRight.setPower(-powerA);
-            backLeft.setPower(powerA);
+            frontRight.setPower(powerA);
+            backLeft.setPower(-powerA);
             backRight.setPower(-powerA);
 
         }
