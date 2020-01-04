@@ -118,10 +118,10 @@ public class compAutoMode extends LinearOpMode {
             backLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
             //creating the variables that will tell the encoder how many ticks to travel
-            int frontLeftTarget = frontLeft.getCurrentPosition() + (int) (inches * encoderTicksPerInch);
-            int frontRightTarget = frontRight.getCurrentPosition() + (int) (inches * encoderTicksPerInch);
-            int backLeftTarget = backLeft.getCurrentPosition() + (int) (inches * encoderTicksPerInch);
-            int backRightTarget = backRight.getCurrentPosition() + (int) (inches * encoderTicksPerInch);
+            int frontLeftTarget = frontLeft.getCurrentPosition() + (int) (-inches * encoderTicksPerInch);
+            int frontRightTarget = frontRight.getCurrentPosition() + (int) (-inches * encoderTicksPerInch);
+            int backLeftTarget = backLeft.getCurrentPosition() + (int) (-inches * encoderTicksPerInch);
+            int backRightTarget = backRight.getCurrentPosition() + (int) (-inches * encoderTicksPerInch);
 
             //setting the aforementioned variables as the target position
             frontLeft.setTargetPosition(frontLeftTarget);
@@ -189,9 +189,9 @@ public class compAutoMode extends LinearOpMode {
 
             //creating the variables that will tell the encoder how many ticks to travel
             int frontLeftTarget = frontLeft.getCurrentPosition() + (int) (inches * encoderTicksPerInch);
-            int frontRightTarget = frontRight.getCurrentPosition() + (int) (-inches * encoderTicksPerInch);
+            int frontRightTarget = frontRight.getCurrentPosition() + (int) (inches * encoderTicksPerInch);
             int backLeftTarget = backLeft.getCurrentPosition() + (int) (-inches * encoderTicksPerInch);
-            int backRightTarget = backRight.getCurrentPosition() + (int) (inches * encoderTicksPerInch);
+            int backRightTarget = backRight.getCurrentPosition() + (int) (-inches * encoderTicksPerInch);
 
             //setting the aforementioned variables as the target position
             frontLeft.setTargetPosition(frontLeftTarget);
@@ -565,7 +565,7 @@ public class compAutoMode extends LinearOpMode {
         while (opModeIsActive()) {
             switch (step) {
                 case stepOne:
-                    moveForward(.7, 12);
+                    moveForward(.6, 12);
                     rotateRobot(.5, 90);
                     moveHorizontal(.25, 12);
                     changeState(programSteps.stepTwo);
