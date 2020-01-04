@@ -5,10 +5,12 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
+import org.firstinspires.ftc.robotcore.external.matrices.VectorF;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
@@ -81,7 +83,8 @@ public class compAutoMode extends LinearOpMode {
 
 
     //device variables
-    DcMotor frontLeft, frontRight, backLeft, backRight;
+    DcMotor frontLeft, frontRight, backLeft, backRight, lift, slide;
+    Servo claw;
 
     //gyro variables
     double globalAngle;
@@ -96,7 +99,7 @@ public class compAutoMode extends LinearOpMode {
     }
 
     public void resetState() {
-        changeState(programSteps.stepOne);
+        changeState(programSteps.findSkystone);
     }
 
     public programSteps getState() {
@@ -105,17 +108,12 @@ public class compAutoMode extends LinearOpMode {
 
     public void moveForward(double power, double inches) {
 
-        if (opModeIsActive()) {
+        if (opModeIsActive() && inches != 0) {
 
             frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-            frontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            frontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            backRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            backLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
             //creating the variables that will tell the encoder how many ticks to travel
             int frontLeftTarget = frontLeft.getCurrentPosition() + (int) (-inches * encoderTicksPerInch);
@@ -160,6 +158,12 @@ public class compAutoMode extends LinearOpMode {
                 telemetry.addData("Back Right Target", backRightTarget);
                 telemetry.update();
             }
+        }
+        else if (opModeIsActive() && inches == 0){
+            frontLeft.setPower(power);
+            frontRight.setPower(power);
+            backLeft.setPower(power);
+            backRight.setPower(power);
 
             frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -175,17 +179,12 @@ public class compAutoMode extends LinearOpMode {
 
     public void moveHorizontal(double power, double inches) {
 
-        if (opModeIsActive()) {
+        if (opModeIsActive() && inches != 0) {
 
             frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-            frontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            frontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            backRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            backLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
             //creating the variables that will tell the encoder how many ticks to travel
             int frontLeftTarget = frontLeft.getCurrentPosition() + (int) (inches * encoderTicksPerInch);
@@ -230,6 +229,12 @@ public class compAutoMode extends LinearOpMode {
                 telemetry.addData("Back Right Target", backRightTarget);
                 telemetry.update();
             }
+        }
+        else if (opModeIsActive() && inches == 0){
+            frontLeft.setPower(-power);
+            frontRight.setPower(-power);
+            backLeft.setPower(power);
+            backRight.setPower(power);
 
             frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -240,9 +245,57 @@ public class compAutoMode extends LinearOpMode {
             frontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             backRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             backLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
         }
     }
+
+    public void moveSlide(double power, double inches) {
+
+        if (opModeIsActive() && inches != 0) {
+            slide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            int slideTarget = slide.getCurrentPosition() + (int) (-inches * encoderTicksPerInch);
+            slide.setTargetPosition(slideTarget);
+            slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            slide.setPower(power);
+            slide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            while (opModeIsActive() && slide.isBusy()) {
+                telemetry.addData("Slide Ticks", slide.getCurrentPosition());
+                telemetry.addData("Slide Target", slideTarget);
+                telemetry.update();
+            }
+        }
+        else if (opModeIsActive() && inches == 0){
+            slide.setPower(power);
+            slide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            slide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        }
+    }
+
+    public void moveLift(double power, double inches) {
+
+        if (opModeIsActive() && inches != 0) {
+            lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            int liftTarget = lift.getCurrentPosition() + (int) (-inches * encoderTicksPerInch);
+            lift.setTargetPosition(liftTarget);
+            lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            lift.setPower(power);
+            lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            while (opModeIsActive() && lift.isBusy()) {
+                telemetry.addData("Lift Ticks", slide.getCurrentPosition());
+                telemetry.addData("Lift Target", liftTarget);
+                telemetry.update();
+            }
+        }
+        else if (opModeIsActive() && inches == 0){
+            lift.setPower(power);
+            lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            lift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        }
+    }
+
+    public void moveClaw(double position) {
+        claw.setPosition(position);
+    }
+
 
     public void stopRobot() {
         frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -364,6 +417,7 @@ public class compAutoMode extends LinearOpMode {
 
     //state machine
     public enum programSteps {
+        findSkystone,
         stepOne,
         stepTwo,
         stepThree,
@@ -380,6 +434,9 @@ public class compAutoMode extends LinearOpMode {
         frontRight = hardwareMap.dcMotor.get("Front Right");
         backLeft = hardwareMap.dcMotor.get("Back Left");
         backRight = hardwareMap.dcMotor.get("Back Right");
+        lift = hardwareMap.dcMotor.get("Lift");
+        slide = hardwareMap.dcMotor.get("Slide");
+        claw = hardwareMap.servo.get("Claw");
         imu = hardwareMap.get(BNO055IMU.class, "IMU");
         webcamName = hardwareMap.get(WebcamName.class, "Webcam 1");
 
@@ -545,6 +602,9 @@ public class compAutoMode extends LinearOpMode {
             ((VuforiaTrackableDefaultListener) trackable.getListener()).setPhoneInformation(phoneLocationOnRobot, parametersVuf.cameraDirection);
         }
 
+        telemetry.addData("Status", "Vuforia Ready");
+        telemetry.update();
+
         telemetry.addData("Status", "Initializing TensorFlow");
         telemetry.update();
 
@@ -555,6 +615,9 @@ public class compAutoMode extends LinearOpMode {
         tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
         tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_FIRST_ELEMENT, LABEL_SECOND_ELEMENT);
 
+        telemetry.addData("Status", "TensorFlow Ready");
+        telemetry.update();
+
         telemetry.addData("Status", "Everything Ready");
         telemetry.update();
 
@@ -564,6 +627,24 @@ public class compAutoMode extends LinearOpMode {
 
         while (opModeIsActive()) {
             switch (step) {
+                case findSkystone:
+                    targetsSkyStone.activate();
+                    targetVisible = false;
+                    while (opModeIsActive() && !targetVisible) {
+                        moveHorizontal(.4, 0);
+                        if (((VuforiaTrackableDefaultListener)stoneTarget.getListener()).isVisible()) {
+                            stopRobot();
+                            targetVisible = true;
+                        }
+                    }
+
+                    moveForward(.5, 20);
+                    moveHorizontal(.5, 12);
+                    moveClaw(.7);
+                    moveForward(.25, 3);
+                    moveClaw(-.2);
+                    moveLift(.4, -6);
+                    moveForward(.5, -12);
                 case stepOne:
                     moveForward(.6, 12);
                     rotateRobot(.5, 90);

@@ -42,21 +42,21 @@ public class teleOpMode extends OpMode {
     public void loop() {
 
         //tank drive
-        frontLeft.setPower(gamepad1.left_stick_y * powerA);
-        frontRight.setPower(gamepad1.right_stick_y * powerA);
-        backLeft.setPower(gamepad1.left_stick_y * powerA);
-        backRight.setPower(gamepad1.right_stick_y * powerA);
+        frontLeft.setPower(gamepad1.left_stick_y * -powerA);
+        frontRight.setPower(gamepad1.right_stick_y * -powerA);
+        backLeft.setPower(gamepad1.left_stick_y * -powerA);
+        backRight.setPower(gamepad1.right_stick_y * -powerA);
 
         if (gamepad1.dpad_right) {
 
-            frontLeft.setPower(-powerA);
-            frontRight.setPower(-powerA);
-            backLeft.setPower(powerA);
-            backRight.setPower(powerA);
+            frontLeft.setPower(powerA);
+            frontRight.setPower(powerA);
+            backLeft.setPower(-powerA);
+            backRight.setPower(-powerA);
 
         }
 
-        //strafe
+        //strafe - completely fixed, do not touch
         if (gamepad1.dpad_left) {
 
             frontLeft.setPower(powerA);
@@ -101,8 +101,8 @@ public class teleOpMode extends OpMode {
         }
 
         //gamepad2
-        slide.setPower(gamepad2.right_stick_y * powerB * .25);
-        lift.setPower(gamepad2.left_stick_y * powerB * .1);
+        slide.setPower(gamepad2.right_stick_y * powerB * .5);
+        lift.setPower(gamepad2.left_stick_y * powerB * .3);
 
         if(gamepad2.a && !isToggledB && !lockB) {
             powerB = .25;
