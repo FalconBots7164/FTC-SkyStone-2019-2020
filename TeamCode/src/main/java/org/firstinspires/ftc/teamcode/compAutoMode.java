@@ -5,9 +5,12 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
+import org.firstinspires.ftc.robotcore.external.matrices.VectorF;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
@@ -16,9 +19,11 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
+import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.*;
 
 import static org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.DEGREES;
 import static org.firstinspires.ftc.robotcore.external.navigation.AxesOrder.XYZ;
@@ -33,11 +38,10 @@ public class compAutoMode extends LinearOpMode {
     //VARIABLES
 
     //Constants for encoders
-    final static double pi = 3.1415;
     final static double ticksPerRevolution = 1120; //rev hex motor
     final static double wheelDiameter = 4.0;
     final static double wheelGearRatio = 1.0;
-    final static double encoderTicksPerInch = (ticksPerRevolution * wheelGearRatio) / (wheelDiameter * pi);
+    final static double encoderTicksPerInch = (ticksPerRevolution * wheelGearRatio) / (wheelDiameter * Math.PI);
 
     private static final float mmPerInch = 25.4f;
     private static final float mmTargetHeight = (6) * mmPerInch;          // the height of the center of the target image above the floor
@@ -45,7 +49,6 @@ public class compAutoMode extends LinearOpMode {
     // Constant for Stone Target
     private static final float stoneZ = 2.00f * mmPerInch;
 
-    private boolean targetVisible = false;
     private float phoneXRotate = 0;
     private float phoneYRotate = 0;
     private float phoneZRotate = 0;
@@ -61,18 +64,30 @@ public class compAutoMode extends LinearOpMode {
     // Constants for perimeter targets
     private static final float halfField = 72 * mmPerInch;
     private static final float quadField = 36 * mmPerInch;
-    private static final String VUFORIA_KEY = "AXijc37/////AAAAGR8Zcpk0OkqfpylpmW5pYTAUkEXgtaFwGrLNLr0pw2tXVyNQrJxgegKHKQkDqhX4BfvI/i8II0jj9TXN1WPENa4GY/VYLsafTjuTTSJHctF5OCHh/XH13hEAsGDzW6tFE6SOf8hMHJpKWcv9neasODelhb5jedgNmgYgg9PCOpKPtn66pjIIZoK4XGvj8gH1+sx9WO5Bl3zwDx6IJPDPilKCQ8hhoWyN6g4yck1/ty7dxwx7DDWQ307lSlcg6DINlMaYsR4CIptbTzNE6SSahJPIAL6isd5pYK8iNI2jYyNLRARlTMo1Ps1+KAVUuDo1GI+vvsg/iGCdkjLfZ2qEf415rfqMWgsEAv3dsZs3sdbp";
-    private static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = FRONT;
+
+    //Vuforia
+    private static final String VUFORIA_KEY = "ARZTw9L/////AAABmRmjM+ct9kkHs003U+Tv11d8yVGXCaI6tYp7lTtQqnvd4p6/5LdopGJP6+8imxm2HZdj88a0AZu48Q7DeqbAtiIDf/ZAcOFqFmlKwbFrRzLfiJMXOcsLL4KkmKwrZwxXDWsLBwchPrj4uZGnoeg3PVLHo4bVVeYU7wkOFlR146ZEbuhvHS0ml+HFeOCAsIwW4B/joj9mdDMkEvFhosKv8ZzLUfAThvTlMNp6Me/QPv4qu/4fXlFkHbrgGRjT2dau0FHCaU8j26MYIJdgIt+QUDmN/xxG9QlFDHJZjkeid3CnmLsqOxbp7HbLFI8pv7TRWVY68RIjZIs1NcSTakz6RVyUl3lt555JNtM7vVMYEzU9";
+    private static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = BACK;
     private static final boolean PHONE_IS_PORTRAIT = false;
     private OpenGLMatrix lastLocation = null;
-    private boolean navIsFound = false;
-    private VuforiaLocalizer vuforia;
+    private boolean skystoneVisible = false;
+    private boolean navIsVisible = false;
+    private VuforiaLocalizer vuforia = null;
+    WebcamName webcamName = null;
+
+    //TensorFlow
+    private static final String TFOD_MODEL_ASSET = "Skystone.tflite";
+    private static final String LABEL_FIRST_ELEMENT = "Stone";
+    private static final String LABEL_SECOND_ELEMENT = "Skystone";
+    private TFObjectDetector tfod;
+
 
     //device variables
-    DcMotor frontLeft, frontRight, backLeft, backRight;
+    DcMotor frontLeft, frontRight, backLeft, backRight, lift, slide;
+    Servo claw;
 
     //gyro variables
-    double globalAngle/*, correction*/;
+    double globalAngle;
     BNO055IMU imu;
     Orientation lastAngles = new Orientation();
 
@@ -84,7 +99,7 @@ public class compAutoMode extends LinearOpMode {
     }
 
     public void resetState() {
-        changeState(programSteps.stepOne);
+        changeState(programSteps.findSkystone);
     }
 
     public programSteps getState() {
@@ -93,23 +108,18 @@ public class compAutoMode extends LinearOpMode {
 
     public void moveForward(double power, double inches) {
 
-        if (opModeIsActive()) {
+        if (inches != 0) {
 
             frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-            frontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            frontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            backRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            backLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
             //creating the variables that will tell the encoder how many ticks to travel
-            int frontLeftTarget = frontLeft.getCurrentPosition() + (int) (inches * encoderTicksPerInch);
-            int frontRightTarget = frontRight.getCurrentPosition() + (int) (inches * encoderTicksPerInch);
-            int backLeftTarget = backLeft.getCurrentPosition() + (int) (inches * encoderTicksPerInch);
-            int backRightTarget = backRight.getCurrentPosition() + (int) (inches * encoderTicksPerInch);
+            int frontLeftTarget = frontLeft.getCurrentPosition() + (int) (-inches * encoderTicksPerInch);
+            int frontRightTarget = frontRight.getCurrentPosition() + (int) (-inches * encoderTicksPerInch);
+            int backLeftTarget = backLeft.getCurrentPosition() + (int) (-inches * encoderTicksPerInch);
+            int backRightTarget = backRight.getCurrentPosition() + (int) (-inches * encoderTicksPerInch);
 
             //setting the aforementioned variables as the target position
             frontLeft.setTargetPosition(frontLeftTarget);
@@ -148,7 +158,7 @@ public class compAutoMode extends LinearOpMode {
                 telemetry.addData("Back Right Target", backRightTarget);
                 telemetry.update();
             }
-
+        } else if (inches == 0) {
             frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -158,28 +168,30 @@ public class compAutoMode extends LinearOpMode {
             frontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             backRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             backLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+            frontLeft.setPower(power);
+            frontRight.setPower(power);
+            backLeft.setPower(power);
+            backRight.setPower(power);
+
+            return;
         }
     }
 
     public void moveHorizontal(double power, double inches) {
 
-        if (opModeIsActive()) {
+        if (inches != 0) {
 
             frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-            frontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            frontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            backRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            backLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
             //creating the variables that will tell the encoder how many ticks to travel
             int frontLeftTarget = frontLeft.getCurrentPosition() + (int) (inches * encoderTicksPerInch);
-            int frontRightTarget = frontRight.getCurrentPosition() + (int) (-inches * encoderTicksPerInch);
+            int frontRightTarget = frontRight.getCurrentPosition() + (int) (inches * encoderTicksPerInch);
             int backLeftTarget = backLeft.getCurrentPosition() + (int) (-inches * encoderTicksPerInch);
-            int backRightTarget = backRight.getCurrentPosition() + (int) (inches * encoderTicksPerInch);
+            int backRightTarget = backRight.getCurrentPosition() + (int) (-inches * encoderTicksPerInch);
 
             //setting the aforementioned variables as the target position
             frontLeft.setTargetPosition(frontLeftTarget);
@@ -218,6 +230,7 @@ public class compAutoMode extends LinearOpMode {
                 telemetry.addData("Back Right Target", backRightTarget);
                 telemetry.update();
             }
+        } else if (inches == 0) {
 
             frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -229,8 +242,61 @@ public class compAutoMode extends LinearOpMode {
             backRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             backLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
+            frontLeft.setPower(-power);
+            frontRight.setPower(-power);
+            backLeft.setPower(power);
+            backRight.setPower(power);
+
+            return;
         }
     }
+
+    public void moveSlide(double power, double inches) {
+
+        if (opModeIsActive() && inches != 0) {
+            slide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            int slideTarget = slide.getCurrentPosition() + (int) (-inches * encoderTicksPerInch);
+            slide.setTargetPosition(slideTarget);
+            slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            slide.setPower(power);
+            slide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            while (opModeIsActive() && slide.isBusy()) {
+                telemetry.addData("Slide Ticks", slide.getCurrentPosition());
+                telemetry.addData("Slide Target", slideTarget);
+                telemetry.update();
+            }
+        } else if (opModeIsActive() && inches == 0) {
+            slide.setPower(power);
+            slide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            slide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        }
+    }
+
+    public void moveLift(double power, double inches) {
+
+        if (opModeIsActive() && inches != 0) {
+            lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            int liftTarget = lift.getCurrentPosition() + (int) (-inches * encoderTicksPerInch);
+            lift.setTargetPosition(liftTarget);
+            lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            lift.setPower(power);
+            lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            while (opModeIsActive() && lift.isBusy()) {
+                telemetry.addData("Lift Ticks", slide.getCurrentPosition());
+                telemetry.addData("Lift Target", liftTarget);
+                telemetry.update();
+            }
+        } else if (opModeIsActive() && inches == 0) {
+            lift.setPower(power);
+            lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            lift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        }
+    }
+
+    public void moveClaw(double position) {
+        claw.setPosition(position);
+    }
+
 
     public void stopRobot() {
         frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -311,6 +377,16 @@ public class compAutoMode extends LinearOpMode {
                 telemetry.addData("Global Angle", globalAngle);
                 telemetry.update();
             }
+            //over-rot check
+            //hopefully can combat the over-rotating, by rotating in the other direction.
+            if (getAngle() < degrees) {
+                while (opModeIsActive() && getAngle() < degrees) {
+                    frontLeft.setPower(-power * .25);
+                    frontRight.setPower(power * .25);
+                    backLeft.setPower(-power * .25);
+                    backRight.setPower(power * .25);
+                }
+            }
         }
 
         //left
@@ -319,6 +395,15 @@ public class compAutoMode extends LinearOpMode {
                 telemetry.addData("Degrees", lastAngles.firstAngle);
                 telemetry.addData("Global Angle", globalAngle);
                 telemetry.update();
+            }
+            //over-rot check
+            if (getAngle() > degrees) {
+                while (opModeIsActive() && getAngle() > degrees) {
+                    frontLeft.setPower(power * .25);
+                    frontRight.setPower(-power * .25);
+                    backLeft.setPower(power * .25);
+                    backRight.setPower(-power * .25);
+                }
             }
         }
 
@@ -333,6 +418,7 @@ public class compAutoMode extends LinearOpMode {
 
     //state machine
     public enum programSteps {
+        findSkystone,
         stepOne,
         stepTwo,
         stepThree,
@@ -349,7 +435,11 @@ public class compAutoMode extends LinearOpMode {
         frontRight = hardwareMap.dcMotor.get("Front Right");
         backLeft = hardwareMap.dcMotor.get("Back Left");
         backRight = hardwareMap.dcMotor.get("Back Right");
+        lift = hardwareMap.dcMotor.get("Lift");
+        slide = hardwareMap.dcMotor.get("Slide");
+        claw = hardwareMap.servo.get("Claw");
         imu = hardwareMap.get(BNO055IMU.class, "IMU");
+        webcamName = hardwareMap.get(WebcamName.class, "Webcam 1");
 
         //make all motor directions uniform
         frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -402,6 +492,7 @@ public class compAutoMode extends LinearOpMode {
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         VuforiaLocalizer.Parameters parametersVuf = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
         parametersVuf.vuforiaLicenseKey = VUFORIA_KEY;
+        parametersVuf.cameraName = webcamName;
         parametersVuf.cameraDirection = CAMERA_CHOICE;
         vuforia = ClassFactory.getInstance().createVuforia(parametersVuf);
         VuforiaTrackables targetsSkyStone = this.vuforia.loadTrackablesFromAsset("Skystone");
@@ -512,6 +603,22 @@ public class compAutoMode extends LinearOpMode {
             ((VuforiaTrackableDefaultListener) trackable.getListener()).setPhoneInformation(phoneLocationOnRobot, parametersVuf.cameraDirection);
         }
 
+        telemetry.addData("Status", "Vuforia Ready");
+        telemetry.update();
+
+        telemetry.addData("Status", "Initializing TensorFlow");
+        telemetry.update();
+
+        int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
+                "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
+        tfodParameters.minimumConfidence = 0.8;
+        tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
+        tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_FIRST_ELEMENT, LABEL_SECOND_ELEMENT);
+
+        telemetry.addData("Status", "TensorFlow Ready");
+        telemetry.update();
+
         telemetry.addData("Status", "Everything Ready");
         telemetry.update();
 
@@ -521,8 +628,53 @@ public class compAutoMode extends LinearOpMode {
 
         while (opModeIsActive()) {
             switch (step) {
+                case findSkystone:
+                    moveForward(.5, 12);
+                    targetsSkyStone.activate();
+                    skystoneVisible = false;
+                    navIsVisible = false;
+//                    while (opModeIsActive() && !navIsVisible) {}
+                    telemetry.addData("Status", "Before Horiz");
+                    telemetry.update();
+                    moveHorizontal(.3, 0);
+                    telemetry.addData("Status", "After Horiz");
+                    telemetry.update();
+                    while (opModeIsActive() && !skystoneVisible) {
+                        telemetry.addData("Status", "Looking for target");
+                        telemetry.update();
+                        if (((VuforiaTrackableDefaultListener) stoneTarget.getListener()).isVisible()) {
+                            skystoneVisible = true;
+                            telemetry.addData("Status", "target found");
+                            telemetry.update();
+                            break;
+                        }
+                    }
+
+                    while (opModeIsActive() && skystoneVisible) {
+                        OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener) stoneTarget.getListener()).getUpdatedRobotLocation();
+                        if (robotLocationTransform != null) {
+                            lastLocation = robotLocationTransform;
+                        }
+                        VectorF translation = lastLocation.getTranslation();
+                            telemetry.addData("Pos (in)", "{X, Y, Z} = %.1f, %.1f, %.1f",
+                                    translation.get(0) / mmPerInch, translation.get(1) / mmPerInch, translation.get(2) / mmPerInch);
+                            telemetry.update();
+                            if (translation.get(1) / mmPerInch <= 0.05f || translation.get(1) / mmPerInch >= -0.05f) {
+                                stopRobot();
+                                break;
+                            }
+                    }
+
+                    moveLift(.5, 12);
+                    moveForward(.5, 12);
+                    moveHorizontal(.5, 12);
+                    moveClaw(.7);
+                    moveForward(.25, 3);
+                    moveClaw(-.2);
+                    moveLift(.4, -6);
+                    moveForward(.5, -12);
                 case stepOne:
-                    moveForward(.7, 12);
+                    moveForward(.6, 12);
                     rotateRobot(.5, 90);
                     moveHorizontal(.25, 12);
                     changeState(programSteps.stepTwo);
@@ -544,7 +696,7 @@ public class compAutoMode extends LinearOpMode {
 
                     telemetry.addData("Error", "Something went wrong");
                     telemetry.update();
-
+                    stopRobot();
                     break;
             }
         }

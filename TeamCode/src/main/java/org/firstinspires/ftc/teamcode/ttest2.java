@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
 import org.firstinspires.ftc.robotcore.external.matrices.VectorF;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
@@ -24,17 +25,16 @@ import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocaliz
 
 @Autonomous
 public class ttest2 extends LinearOpMode {
+
+    private static final String VUFORIA_KEY = "AXijc37/////AAAAGR8Zcpk0OkqfpylpmW5pYTAUkEXgtaFwGrLNLr0pw2tXVyNQrJxgegKHKQkDqhX4BfvI/i8II0jj9TXN1WPENa4GY/VYLsafTjuTTSJHctF5OCHh/XH13hEAsGDzW6tFE6SOf8hMHJpKWcv9neasODelhb5jedgNmgYgg9PCOpKPtn66pjIIZoK4XGvj8gH1+sx9WO5Bl3zwDx6IJPDPilKCQ8hhoWyN6g4yck1/ty7dxwx7DDWQ307lSlcg6DINlMaYsR4CIptbTzNE6SSahJPIAL6isd5pYK8iNI2jYyNLRARlTMo1Ps1+KAVUuDo1GI+vvsg/iGCdkjLfZ2qEf415rfqMWgsEAv3dsZs3sdbp";
+    private static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = BACK;
+    private static final boolean PHONE_IS_PORTRAIT = false  ;
+
     private static final float mmPerInch        = 25.4f;
     private static final float mmTargetHeight   = (6) * mmPerInch;          // the height of the center of the target image above the floor
 
     // Constant for Stone Target
     private static final float stoneZ = 2.00f * mmPerInch;
-
-    private boolean targetVisible = false;
-    private float phoneXRotate    = 0;
-    private float phoneYRotate    = 0;
-    private float phoneZRotate    = 0;
-
 
     // Constants for the center support targets
     private static final float bridgeZ = 6.42f * mmPerInch;
@@ -46,22 +46,60 @@ public class ttest2 extends LinearOpMode {
     // Constants for perimeter targets
     private static final float halfField = 72 * mmPerInch;
     private static final float quadField  = 36 * mmPerInch;
-    private static final String VUFORIA_KEY = "AXijc37/////AAAAGR8Zcpk0OkqfpylpmW5pYTAUkEXgtaFwGrLNLr0pw2tXVyNQrJxgegKHKQkDqhX4BfvI/i8II0jj9TXN1WPENa4GY/VYLsafTjuTTSJHctF5OCHh/XH13hEAsGDzW6tFE6SOf8hMHJpKWcv9neasODelhb5jedgNmgYgg9PCOpKPtn66pjIIZoK4XGvj8gH1+sx9WO5Bl3zwDx6IJPDPilKCQ8hhoWyN6g4yck1/ty7dxwx7DDWQ307lSlcg6DINlMaYsR4CIptbTzNE6SSahJPIAL6isd5pYK8iNI2jYyNLRARlTMo1Ps1+KAVUuDo1GI+vvsg/iGCdkjLfZ2qEf415rfqMWgsEAv3dsZs3sdbp";
-    private static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = FRONT;
-    private static final boolean PHONE_IS_PORTRAIT = false  ;
+
     private OpenGLMatrix lastLocation = null;
     private boolean navIsFound = false;
     private VuforiaLocalizer vuforia;
 
+    WebcamName webcamName = null;
+
+    private boolean targetVisible = false;
+    private float phoneXRotate    = 0;
+    private float phoneYRotate    = 0;
+    private float phoneZRotate    = 0;
+
     @Override
     public void runOpMode() throws InterruptedException {
 
+        telemetry.addData("Error", 1);
+        telemetry.update();
+
+        webcamName = hardwareMap.get(WebcamName.class, "Webcam 1");
+
+        telemetry.addData("Error", 2);
+        telemetry.update();
+
+
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+
+        telemetry.addData("Error", 2.1);
+        telemetry.update();
+
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
+
+        telemetry.addData("Error", 2.2);
+        telemetry.update();
+
         parameters.vuforiaLicenseKey = VUFORIA_KEY;
-        parameters.cameraDirection = FRONT;
+
+        telemetry.addData("Error", 2.3);
+        telemetry.update();
+
+        parameters.cameraName = webcamName;
+
+        telemetry.addData("Error", 2.4);
+        telemetry.update();
+
         vuforia = ClassFactory.getInstance().createVuforia(parameters);
+
+        telemetry.addData("Error", 2.5);
+        telemetry.update();
+
         VuforiaTrackables targetsSkyStone = this.vuforia.loadTrackablesFromAsset("Skystone");
+
+        telemetry.addData("Error", 3);
+        telemetry.update();
+
 
         VuforiaTrackable stoneTarget = targetsSkyStone.get(0);
         stoneTarget.setName("Stone Target");
@@ -88,10 +126,18 @@ public class ttest2 extends LinearOpMode {
         VuforiaTrackable rear1 = targetsSkyStone.get(11);
         rear1.setName("Rear Perimeter 1");
         VuforiaTrackable rear2 = targetsSkyStone.get(12);
+
+        telemetry.addData("Error", 4);
+        telemetry.update();
+
         rear2.setName("Rear Perimeter 2");
 
         List<VuforiaTrackable> allTrackables = new ArrayList<VuforiaTrackable>();
         allTrackables.addAll(targetsSkyStone);
+
+        telemetry.addData("Error", 5);
+        telemetry.update();
+
 
         stoneTarget.setLocation(OpenGLMatrix
                 .translation(0, 0, stoneZ)
@@ -146,6 +192,10 @@ public class ttest2 extends LinearOpMode {
         rear2.setLocation(OpenGLMatrix
                 .translation(halfField, -quadField, mmTargetHeight)
                 .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0, -90)));
+
+        telemetry.addData("Error", 6);
+        telemetry.update();
+
 
         if (CAMERA_CHOICE == BACK) {
             phoneYRotate = -90;
