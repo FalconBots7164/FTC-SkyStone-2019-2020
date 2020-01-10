@@ -49,7 +49,6 @@ public class compAutoMode extends LinearOpMode {
     // Constant for Stone Target
     private static final float stoneZ = 2.00f * mmPerInch;
 
-    private boolean targetVisible = false;
     private float phoneXRotate = 0;
     private float phoneYRotate = 0;
     private float phoneZRotate = 0;
@@ -71,7 +70,8 @@ public class compAutoMode extends LinearOpMode {
     private static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = BACK;
     private static final boolean PHONE_IS_PORTRAIT = false;
     private OpenGLMatrix lastLocation = null;
-    private boolean navIsFound = false;
+    private boolean skystoneVisible = false;
+    private boolean navIsVisible = false;
     private VuforiaLocalizer vuforia = null;
     WebcamName webcamName = null;
 
@@ -108,7 +108,7 @@ public class compAutoMode extends LinearOpMode {
 
     public void moveForward(double power, double inches) {
 
-        if (opModeIsActive() && inches != 0) {
+        if (inches != 0) {
 
             frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -158,12 +158,7 @@ public class compAutoMode extends LinearOpMode {
                 telemetry.addData("Back Right Target", backRightTarget);
                 telemetry.update();
             }
-        } else if (opModeIsActive() && inches == 0) {
-            frontLeft.setPower(power);
-            frontRight.setPower(power);
-            backLeft.setPower(power);
-            backRight.setPower(power);
-
+        } else if (inches == 0) {
             frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -173,12 +168,19 @@ public class compAutoMode extends LinearOpMode {
             frontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             backRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             backLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+            frontLeft.setPower(power);
+            frontRight.setPower(power);
+            backLeft.setPower(power);
+            backRight.setPower(power);
+
+            return;
         }
     }
 
     public void moveHorizontal(double power, double inches) {
 
-        if (opModeIsActive() && inches != 0) {
+        if (inches != 0) {
 
             frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -228,11 +230,7 @@ public class compAutoMode extends LinearOpMode {
                 telemetry.addData("Back Right Target", backRightTarget);
                 telemetry.update();
             }
-        } else if (opModeIsActive() && inches == 0) {
-            frontLeft.setPower(-power);
-            frontRight.setPower(-power);
-            backLeft.setPower(power);
-            backRight.setPower(power);
+        } else if (inches == 0) {
 
             frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -243,6 +241,13 @@ public class compAutoMode extends LinearOpMode {
             frontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             backRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             backLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+            frontLeft.setPower(-power);
+            frontRight.setPower(-power);
+            backLeft.setPower(power);
+            backRight.setPower(power);
+
+            return;
         }
     }
 
@@ -624,30 +629,44 @@ public class compAutoMode extends LinearOpMode {
         while (opModeIsActive()) {
             switch (step) {
                 case findSkystone:
+                    moveForward(.5, 12);
                     targetsSkyStone.activate();
-                    targetVisible = false;
-                    while (opModeIsActive() && !targetVisible) {
-                        moveHorizontal(.4, 0);
+                    skystoneVisible = false;
+                    navIsVisible = false;
+//                    while (opModeIsActive() && !navIsVisible) {}
+                    telemetry.addData("Status", "Before Horiz");
+                    telemetry.update();
+                    moveHorizontal(.3, 0);
+                    telemetry.addData("Status", "After Horiz");
+                    telemetry.update();
+                    while (opModeIsActive() && !skystoneVisible) {
+                        telemetry.addData("Status", "Looking for target");
+                        telemetry.update();
                         if (((VuforiaTrackableDefaultListener) stoneTarget.getListener()).isVisible()) {
-                            stopRobot();
-                            targetVisible = true;
+                            skystoneVisible = true;
+                            telemetry.addData("Status", "target found");
+                            telemetry.update();
+                            break;
                         }
                     }
-                    while (opModeIsActive() && targetVisible) {
-                        moveHorizontal(.4, 0);
+
+                    while (opModeIsActive() && skystoneVisible) {
                         OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener) stoneTarget.getListener()).getUpdatedRobotLocation();
                         if (robotLocationTransform != null) {
                             lastLocation = robotLocationTransform;
                         }
-                            VectorF translation = lastLocation.getTranslation();
+                        VectorF translation = lastLocation.getTranslation();
                             telemetry.addData("Pos (in)", "{X, Y, Z} = %.1f, %.1f, %.1f",
                                     translation.get(0) / mmPerInch, translation.get(1) / mmPerInch, translation.get(2) / mmPerInch);
-                            if (translation.get(1) == 0) {
-
+                            telemetry.update();
+                            if (translation.get(1) / mmPerInch <= 0.05f || translation.get(1) / mmPerInch >= -0.05f) {
+                                stopRobot();
+                                break;
                             }
                     }
 
-                    moveForward(.5, 20);
+                    moveLift(.5, 12);
+                    moveForward(.5, 12);
                     moveHorizontal(.5, 12);
                     moveClaw(.7);
                     moveForward(.25, 3);
