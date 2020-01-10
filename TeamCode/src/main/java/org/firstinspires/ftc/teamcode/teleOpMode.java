@@ -101,7 +101,7 @@ public class teleOpMode extends OpMode {
         }
 
         //gamepad2
-        slide.setPower(gamepad2.right_stick_y * powerB * .5);
+        slide.setPower(gamepad2.right_stick_y * powerB * .65);
         lift.setPower(gamepad2.left_stick_y * powerB * .3);
 
         if(gamepad2.a && !isToggledB && !lockB) {
