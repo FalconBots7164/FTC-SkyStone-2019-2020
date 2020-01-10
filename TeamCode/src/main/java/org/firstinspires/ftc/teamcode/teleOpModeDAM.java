@@ -51,7 +51,6 @@ public class teleOpModeDAM extends OpMode {
         frontRight = hardwareMap.dcMotor.get("Front Right");
         backLeft = hardwareMap.dcMotor.get("Back Left");
         backRight = hardwareMap.dcMotor.get("Back Right");
-
         rightMotor = hardwareMap.dcMotor.get("Right");
         leftMotor = hardwareMap.dcMotor.get("Left");
         lift = hardwareMap.dcMotor.get("Lift");
