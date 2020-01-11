@@ -416,6 +416,27 @@ public class compAutoMode extends LinearOpMode {
 
     }
 
+    public void straightenRobot(double power) {
+        getAngle();
+        if (getAngle() < 0) {
+            while (opModeIsActive() && getAngle() < 0) {
+                frontLeft.setPower(power);
+                frontRight.setPower(-power);
+                backLeft.setPower(power);
+                backRight.setPower(-power);
+            }
+        } else if (getAngle() > 0) {
+            while (opModeIsActive() && getAngle() > 0) {
+                frontLeft.setPower(-power);
+                frontRight.setPower(power);
+                backLeft.setPower(-power);
+                backRight.setPower(power);
+            }
+        } else {
+            return;
+        }
+    }
+
     //state machine
     public enum programSteps {
         findSkystone,
@@ -423,6 +444,7 @@ public class compAutoMode extends LinearOpMode {
         stepTwo,
         stepThree,
         stop
+        //Obama
     }
 
     programSteps step;
@@ -604,7 +626,7 @@ public class compAutoMode extends LinearOpMode {
         }
 
         telemetry.addData("Status", "Vuforia Ready");
-        telemetry.update();
+        telemetry.update(); //penis
 
         telemetry.addData("Status", "Initializing TensorFlow");
         telemetry.update();
@@ -636,7 +658,7 @@ public class compAutoMode extends LinearOpMode {
 //                    while (opModeIsActive() && !navIsVisible) {}
                     telemetry.addData("Status", "Before Horiz");
                     telemetry.update();
-                    moveHorizontal(.3, 0);
+                    moveHorizontal(.25, 0);
                     telemetry.addData("Status", "After Horiz");
                     telemetry.update();
                     while (opModeIsActive() && !skystoneVisible) {
@@ -656,27 +678,26 @@ public class compAutoMode extends LinearOpMode {
                             lastLocation = robotLocationTransform;
                         }
                         VectorF translation = lastLocation.getTranslation();
-                            telemetry.addData("Pos (in)", "{X, Y, Z} = %.1f, %.1f, %.1f",
-                                    translation.get(0) / mmPerInch, translation.get(1) / mmPerInch, translation.get(2) / mmPerInch);
-                            telemetry.update();
-                            if (translation.get(1) / mmPerInch <= 0.05f || translation.get(1) / mmPerInch >= -0.05f) {
-                                stopRobot();
-                                break;
-                            }
+                        telemetry.addData("Pos (in)", "{X, Y, Z} = %.1f, %.1f, %.1f",
+                                translation.get(0) / mmPerInch, translation.get(1) / mmPerInch, translation.get(2) / mmPerInch);
+                        telemetry.update();
+                        if (translation.get(1) / mmPerInch <= 0.025f || translation.get(1) / mmPerInch >= -0.025f) {
+                            stopRobot();
+                            break;
+                        }
                     }
 
-                    moveLift(.5, 12);
-                    moveForward(.5, 12);
-                    moveHorizontal(.5, 12);
+                    moveSlide(.5, -6);
+                    moveForward(.5, 7);
+                    moveHorizontal(.5, 5);
                     moveClaw(.7);
-                    moveForward(.25, 3);
+//                    straightenRobot(.2);
+//                    rotateRobot(.2, -5);
+                    moveForward(.2, 6);
                     moveClaw(-.2);
-                    moveLift(.4, -6);
+                    moveSlide(.4, 6);
                     moveForward(.5, -12);
                 case stepOne:
-                    moveForward(.6, 12);
-                    rotateRobot(.5, 90);
-                    moveHorizontal(.25, 12);
                     changeState(programSteps.stepTwo);
                     break;
 
