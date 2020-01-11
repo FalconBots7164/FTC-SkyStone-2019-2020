@@ -36,7 +36,7 @@ public class teleOpMode extends OpMode {
         backRight.setDirection(DcMotorSimple.Direction.REVERSE);
         
         claw.setPosition(0);
-        hooker.setPosition(0);
+        hooker.setPosition(0.5);
 
     }
 
@@ -130,12 +130,13 @@ public class teleOpMode extends OpMode {
         }
 
         if (gamepad2.x) {
-            hooker.setPosition(.5);
+            hooker.setPosition(1.0);
         }
         else {
-            hooker.setPosition(0);
+            hooker.setPosition(0.5);
         }
         telemetry.addData("Gamepad 1 Toggle:", isToggledA);
         telemetry.addData("Gamepad 2 Toggle:", isToggledB);
+        
     }
 }
