@@ -11,7 +11,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 public class teleOpMode extends OpMode {
 
     DcMotor frontLeft, frontRight, backLeft, backRight, lift, slide;
-    Servo claw;
+    Servo claw, hooker;
 
     double powerA = .7;
     double powerB = .7;
@@ -30,11 +30,13 @@ public class teleOpMode extends OpMode {
         lift = hardwareMap.dcMotor.get("Lift");
         slide = hardwareMap.dcMotor.get("Slide");
         claw = hardwareMap.servo.get("Claw");
+        hooker = hardwareMap.servo.get("Hooker");
 
         frontRight.setDirection(DcMotorSimple.Direction.REVERSE);
         backRight.setDirection(DcMotorSimple.Direction.REVERSE);
         
         claw.setPosition(0);
+        hooker.setPosition(0);
 
     }
 
@@ -86,7 +88,7 @@ public class teleOpMode extends OpMode {
         }
 
         //speed toggleA
-        if(gamepad1.a && !isToggledA && !lockA) {
+        if (gamepad1.a && !isToggledA && !lockA) {
             powerA = .25;
             isToggledA = true;
             lockA = true;
@@ -127,6 +129,12 @@ public class teleOpMode extends OpMode {
             claw.setPosition(0);
         }
 
+        if (gamepad2.x) {
+            hooker.setPosition(.5);
+        }
+        else {
+            hooker.setPosition(0);
+        }
         telemetry.addData("Gamepad 1 Toggle:", isToggledA);
         telemetry.addData("Gamepad 2 Toggle:", isToggledB);
     }
