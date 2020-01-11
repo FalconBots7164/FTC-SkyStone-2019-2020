@@ -49,20 +49,20 @@ public class teleOpMode extends OpMode {
 
         if (gamepad1.dpad_right) {
 
-            frontLeft.setPower(-powerA);
-            frontRight.setPower(-powerA);
-            backLeft.setPower(powerA);
-            backRight.setPower(powerA);
+            frontLeft.setPower(-powerA * 1.4);
+            frontRight.setPower(-powerA* 1.4);
+            backLeft.setPower(powerA* 1.4);
+            backRight.setPower(powerA* 1.4);
 
         }
 
         //strafe - completely fixed, do not touch
         if (gamepad1.dpad_left) {
 
-            frontLeft.setPower(powerA);
-            frontRight.setPower(powerA);
-            backLeft.setPower(-powerA);
-            backRight.setPower(-powerA);
+            frontLeft.setPower(powerA* 1.4);
+            frontRight.setPower(powerA* 1.4);
+            backLeft.setPower(-powerA* 1.4);
+            backRight.setPower(-powerA * 1.4);
 
         }
 
@@ -101,8 +101,8 @@ public class teleOpMode extends OpMode {
         }
 
         //gamepad2
-        slide.setPower(gamepad2.right_stick_y * powerB * .5);
-        lift.setPower(gamepad2.left_stick_y * powerB * .3);
+        slide.setPower(gamepad2.left_stick_y * -powerB * .5);
+        lift.setPower(gamepad2.right_stick_y * powerB * .6);
 
         if(gamepad2.a && !isToggledB && !lockB) {
             powerB = .25;
