@@ -3,13 +3,6 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.CRServo;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -27,17 +20,17 @@ import static android.os.SystemClock.sleep;
 public class teleOpModeDAM extends OpMode {
     //test commit
 //damian
-    // actual code for the main robot
-    //xPushed was not used in Noah's previous code
+
     int xPushed = 0;
 
     DcMotor frontLeft;
     DcMotor frontRight;
     DcMotor backLeft;
     DcMotor backRight;
-    DcMotor lift;
+
     DcMotor rightMotor;
     DcMotor leftMotor;
+    DcMotor lift;
     DcMotor arm;
     Servo claw;
     Servo idol;
@@ -58,9 +51,7 @@ public class teleOpModeDAM extends OpMode {
         frontLeft = hardwareMap.dcMotor.get("Front Left");
         frontRight = hardwareMap.dcMotor.get("Front Right");
         backLeft = hardwareMap.dcMotor.get("Back Left");
-
         backRight = hardwareMap.dcMotor.get("Back Right");
-//this kush is the code we took from mister Noah's Git
         rightMotor = hardwareMap.dcMotor.get("Right");
         leftMotor = hardwareMap.dcMotor.get("Left");
         lift = hardwareMap.dcMotor.get("Lift");
@@ -72,8 +63,9 @@ public class teleOpModeDAM extends OpMode {
         sweeper = hardwareMap.crservo.get("Sweeper");
         claw.setPosition(0);
         idol.setPosition(.9);
-    }
+        //       slide.setPosition(.5);
 
+    }
 
     @Override
     public void loop() {
@@ -115,8 +107,6 @@ public class teleOpModeDAM extends OpMode {
             backLeft.setPower(-power);
             backRight.setPower(power);
         }
-
-
 
         /////////////////////////////////////////
 
