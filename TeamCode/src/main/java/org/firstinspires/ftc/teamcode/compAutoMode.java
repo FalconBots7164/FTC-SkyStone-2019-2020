@@ -40,10 +40,10 @@ public class compAutoMode extends LinearOpMode {
     //VARIABLES
 
     //Constants for encoders
-    final static double ticksPerRevolution = 1120; //rev hex motor
-    final static double wheelDiameter = 4.0;
-    final static double wheelGearRatio = 1.0;
-    final static double encoderTicksPerInch = (ticksPerRevolution * wheelGearRatio) / (wheelDiameter * Math.PI);
+    private final static double ticksPerRevolution = 1120; //rev hex motor
+    private final static double wheelDiameter = 4.0;
+    private static double wheelGearRatio = 1.0;
+    private final static double encoderTicksPerInch = (ticksPerRevolution * wheelGearRatio) / (wheelDiameter * Math.PI);
 
     private static final float mmPerInch = 25.4f;
     private static final float mmTargetHeight = (6) * mmPerInch;          // the height of the center of the target image above the floor
@@ -75,7 +75,7 @@ public class compAutoMode extends LinearOpMode {
     private boolean skystoneVisible = false;
     private boolean navIsVisible = false;
     private VuforiaLocalizer vuforia = null;
-    WebcamName webcamName = null;
+    private WebcamName webcamName = null;
 
     //TensorFlow
     private static final String TFOD_MODEL_ASSET = "Skystone.tflite";
@@ -419,21 +419,23 @@ public class compAutoMode extends LinearOpMode {
     }
 
     public void straightenRobot(double power) {
-        getAngle();
+
         if (getAngle() < 0) {
-            while (opModeIsActive() && getAngle() < 0) {
-                frontLeft.setPower(power);
-                frontRight.setPower(-power);
-                backLeft.setPower(power);
-                backRight.setPower(-power);
-            }
+            frontLeft.setPower(power);
+            frontRight.setPower(-power);
+            backLeft.setPower(power);
+            backRight.setPower(-power);
+
+            while (opModeIsActive() && getAngle() < 0) {}
+
         } else if (getAngle() > 0) {
-            while (opModeIsActive() && getAngle() > 0) {
-                frontLeft.setPower(-power);
-                frontRight.setPower(power);
-                backLeft.setPower(-power);
-                backRight.setPower(power);
-            }
+            frontLeft.setPower(-power);
+            frontRight.setPower(power);
+            backLeft.setPower(-power);
+            backRight.setPower(power);
+
+            while (opModeIsActive() && getAngle() > 0) {}
+
         } else {
             return;
         }
@@ -442,11 +444,10 @@ public class compAutoMode extends LinearOpMode {
     //state machine
     public enum programSteps {
         findSkystone,
-        stepOne,
-        stepTwo,
-        stepThree,
+        goUnderBridge,
+        placeSkystone,
+        movePlate,
         stop
-        //Obama
     }
 
     programSteps step;
@@ -628,7 +629,7 @@ public class compAutoMode extends LinearOpMode {
         }
 
         telemetry.addData("Status", "Vuforia Ready");
-        telemetry.update(); //penis
+        telemetry.update();
 
         telemetry.addData("Status", "Initializing TensorFlow");
         telemetry.update();
@@ -642,6 +643,8 @@ public class compAutoMode extends LinearOpMode {
 
         telemetry.addData("Status", "TensorFlow Ready");
         telemetry.update();
+
+        resetAngle();
 
         telemetry.addData("Status", "Everything Ready");
         telemetry.update();
@@ -693,15 +696,16 @@ public class compAutoMode extends LinearOpMode {
                     moveClaw(-.2);
                     moveSlide(.4, 6);
                     moveForward(.5, -12);
-                case stepOne:
-                    changeState(programSteps.stepTwo);
+                    changeState(programSteps.goUnderBridge);
+                case goUnderBridge:
+                    changeState(programSteps.placeSkystone);
                     break;
 
-                case stepTwo:
-                    changeState(programSteps.stepThree);
+                case placeSkystone:
+                    changeState(programSteps.movePlate);
                     break;
 
-                case stepThree:
+                case movePlate:
                     changeState(programSteps.stop);
                     break;
 
