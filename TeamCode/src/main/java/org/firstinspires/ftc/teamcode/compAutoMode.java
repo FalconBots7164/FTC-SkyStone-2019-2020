@@ -658,44 +658,38 @@ public class compAutoMode extends LinearOpMode {
                     skystoneVisible = false;
                     navIsVisible = false;
 //                    while (opModeIsActive() && !navIsVisible) {}
-                    telemetry.addData("Status", "Before Horiz");
-                    telemetry.update();
+                    //strafe left until the target is found
                     moveHorizontal(.25, 0);
-                    telemetry.addData("Status", "After Horiz");
-                    telemetry.update();
                     while (opModeIsActive() && !skystoneVisible) {
-                        telemetry.addData("Status", "Looking for target");
-                        telemetry.update();
                         if (((VuforiaTrackableDefaultListener) stoneTarget.getListener()).isVisible()) {
                             skystoneVisible = true;
-                            telemetry.addData("Status", "target found");
-                            telemetry.update();
                             break;
                         }
                     }
 
+                    //once target is found, position robot so that the webcam and skystone are perpendicular.
                     while (opModeIsActive() && skystoneVisible) {
+                        //create a matrix for the position of the skystone which will be converted into vector quantities.
                         OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener) stoneTarget.getListener()).getUpdatedRobotLocation();
                         if (robotLocationTransform != null) {
                             lastLocation = robotLocationTransform;
                         }
-                        VectorF translation = lastLocation.getTranslation();
-                        telemetry.addData("Pos (in)", "{X, Y, Z} = %.1f, %.1f, %.1f",
-                                translation.get(0) / mmPerInch, translation.get(1) / mmPerInch, translation.get(2) / mmPerInch);
-                        telemetry.update();
-                        if (translation.get(1) / mmPerInch <= 0.025f || translation.get(1) / mmPerInch >= -0.025f) {
+                        //declaration of vector
+                        VectorF position = lastLocation.getTranslation();
+                        if (position.get(1) / mmPerInch <= 0.025f || position.get(1) / mmPerInch >= -0.025f) {
                             stopRobot();
                             break;
                         }
                     }
 
+                    //once perpendicular, adjust robot to grab the block.
                     moveSlide(.5, -6);
                     moveForward(.5, 7);
-                    moveHorizontal(.5, 5);
+                    //moveHorizontal(.5, 6.5);
                     moveClaw(.7);
 //                    straightenRobot(.2);
 //                    rotateRobot(.2, -5);
-                    moveForward(.2, 6);
+                    moveForward(.2, 8);
                     moveClaw(-.2);
                     moveSlide(.4, 6);
                     moveForward(.5, -12);
