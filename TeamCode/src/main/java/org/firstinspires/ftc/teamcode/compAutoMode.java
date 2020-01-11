@@ -698,6 +698,9 @@ public class compAutoMode extends LinearOpMode {
                     moveForward(.5, -12);
                     changeState(programSteps.goUnderBridge);
                 case goUnderBridge:
+                    moveForward(.5, -13);
+                    rotateRobot(.4, 270);
+                    moveForward(1, 26);
                     changeState(programSteps.placeSkystone);
                     break;
 
