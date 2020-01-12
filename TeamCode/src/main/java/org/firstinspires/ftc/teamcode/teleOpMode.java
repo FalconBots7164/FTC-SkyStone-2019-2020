@@ -15,11 +15,14 @@ public class teleOpMode extends OpMode {
 
     double powerA = .7;
     double powerB = .7;
+    double strafePower = 1.0;
     boolean isToggledA = false;
     boolean lockA = false;
     boolean isToggledB = false;
     boolean lockB = false;
     boolean strafeMode = false;
+   // boolean testClaw = false;
+
 
     @Override
     public void init() {
@@ -53,24 +56,29 @@ public class teleOpMode extends OpMode {
         //strafe - completely fixed, do not touch
         if (gamepad1.dpad_right && strafeMode == false) {
             strafeMode = true;
-            frontLeft.setPower(-powerA*.143);
-            frontRight.setPower(-powerA*.143);
-            backLeft.setPower(powerA*.143);
-            backRight.setPower(powerA*.143);
+            if (strafeMode) {
+                frontLeft.setPower(-strafePower * .7);
+                frontRight.setPower(-strafePower * .7);
+                backLeft.setPower(strafePower * .7);
+                backRight.setPower(strafePower * .7);
+            }
         }
         else {
             strafeMode = false;
+            strafePower = 1.0;
         }
-
         if (gamepad1.dpad_left && strafeMode == false) {
             strafeMode = true;
-            frontLeft.setPower(powerA*.143);
-            frontRight.setPower(powerA*.143);
-            backLeft.setPower(-powerA*.143);
-            backRight.setPower(-powerA*.143);
+            if (strafeMode) {
+                frontLeft.setPower(strafePower * .7);
+                frontRight.setPower(strafePower * .7);
+                backLeft.setPower(-strafePower * .7);
+                backRight.setPower(-strafePower * .7);
+            }
         }
         else {
             strafeMode = false;
+            strafePower = 1.0;
         }
 
         //forward/backwards
@@ -94,23 +102,18 @@ public class teleOpMode extends OpMode {
 
         //speed toggleA
         if (gamepad1.a && !isToggledA && !lockA) {
-            if (strafeMode == true) {
-                powerA = .7;
-            }
-            else if ( strafeMode == false) {
                 powerA = .25;
+                isToggledA = true;
+                lockA = true;
             }
-            isToggledA = true;
-            lockA = true;
-        }
-        else if (gamepad1.a && isToggledA && !lockA) {
-            powerA = .7;
-            isToggledA = false;
-            lockA = true;
-        }
-        else if (!gamepad1.a && lockA) {
-            lockA = false;
-        }
+            else if (gamepad1.a && isToggledA && !lockA) {
+                powerA = .7;
+                isToggledA = false;
+                lockA = true;
+            }
+            else if (!gamepad1.a && lockA) {
+                lockA = false;
+            }
 
         //gamepad2
         slide.setPower(gamepad2.right_stick_y * powerB * .5); // flip upright

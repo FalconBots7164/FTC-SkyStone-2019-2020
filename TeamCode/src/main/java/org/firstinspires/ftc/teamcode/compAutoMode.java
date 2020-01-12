@@ -587,6 +587,7 @@ public class compAutoMode extends LinearOpMode {
         vuforia = ClassFactory.getInstance().createVuforia(parametersVuf);
         VuforiaTrackables targetsSkyStone = this.vuforia.loadTrackablesFromAsset("Skystone");
 
+        //Model data from source code????
         VuforiaTrackable stoneTarget = targetsSkyStone.get(0);
         stoneTarget.setName("Stone Target");
         VuforiaTrackable blueRearBridge = targetsSkyStone.get(1);
