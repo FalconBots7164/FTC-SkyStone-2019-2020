@@ -21,6 +21,7 @@ public class teleOpMode extends OpMode {
     boolean isToggledB = false;
     boolean lockB = false;
     boolean strafeMode = false;
+   // boolean testClaw = false;
 
 
     @Override
