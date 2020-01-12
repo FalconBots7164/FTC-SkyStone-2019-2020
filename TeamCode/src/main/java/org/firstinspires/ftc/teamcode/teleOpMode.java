@@ -103,8 +103,8 @@ public class teleOpMode extends OpMode {
         }
 
         //gamepad2
-        slide.setPower(gamepad2.right_stick_y * powerB * .5);
-        lift.setPower(gamepad2.left_stick_y * powerB * .65);
+        slide.setPower(gamepad2.right_stick_y * powerB * .5); // flip upright
+        lift.setPower(gamepad2.left_stick_y * powerB * .9);  // Arm height .8 Up and down (History: .65 then .8)
 
         if(gamepad2.a && !isToggledB && !lockB) {
             powerB = .25;
