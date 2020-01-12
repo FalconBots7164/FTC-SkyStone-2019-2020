@@ -652,7 +652,10 @@ public class compAutoMode extends LinearOpMode {
         waitForStart();
 
         resetState();
-
+//For bot to know what side its on
+// Find certain pic -- tell if its red
+// else its blue
+//   ANIME GIRLS O o O
         while (opModeIsActive()) {
             switch (step) {
                 case findSkystone:
@@ -699,7 +702,7 @@ public class compAutoMode extends LinearOpMode {
                     changeState(programSteps.goUnderBridge);
                 case goUnderBridge:
                     moveForward(.5, -13);
-                    rotateRobot(.4, 270);
+                    rotateRobot(1, -90);
                     moveForward(1, 26);
                     changeState(programSteps.placeSkystone);
                     break;

@@ -19,6 +19,7 @@ public class teleOpMode extends OpMode {
     boolean lockA = false;
     boolean isToggledB = false;
     boolean lockB = false;
+    boolean strafeMode = false;
 
     @Override
     public void init() {
@@ -49,23 +50,27 @@ public class teleOpMode extends OpMode {
         backLeft.setPower(gamepad1.right_stick_y * -powerA);
         backRight.setPower(gamepad1.left_stick_y * -powerA);
 
-        if (gamepad1.dpad_right) {
-
-            frontLeft.setPower(-powerA);
-            frontRight.setPower(-powerA);
-            backLeft.setPower(powerA);
-            backRight.setPower(powerA);
-
+        //strafe - completely fixed, do not touch
+        if (gamepad1.dpad_right && strafeMode == false) {
+            strafeMode = true;
+            frontLeft.setPower(-powerA*.143);
+            frontRight.setPower(-powerA*.143);
+            backLeft.setPower(powerA*.143);
+            backRight.setPower(powerA*.143);
+        }
+        else {
+            strafeMode = false;
         }
 
-        //strafe - completely fixed, do not touch
-        if (gamepad1.dpad_left) {
-
-            frontLeft.setPower(powerA);
-            frontRight.setPower(powerA);
-            backLeft.setPower(-powerA);
-            backRight.setPower(-powerA);
-
+        if (gamepad1.dpad_left && strafeMode == false) {
+            strafeMode = true;
+            frontLeft.setPower(powerA*.143);
+            frontRight.setPower(powerA*.143);
+            backLeft.setPower(-powerA*.143);
+            backRight.setPower(-powerA*.143);
+        }
+        else {
+            strafeMode = false;
         }
 
         //forward/backwards
@@ -89,7 +94,12 @@ public class teleOpMode extends OpMode {
 
         //speed toggleA
         if (gamepad1.a && !isToggledA && !lockA) {
-            powerA = .25;
+            if (strafeMode == true) {
+                powerA = .7;
+            }
+            else if ( strafeMode == false) {
+                powerA = .25;
+            }
             isToggledA = true;
             lockA = true;
         }
