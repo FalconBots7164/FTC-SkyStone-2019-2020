@@ -101,7 +101,7 @@ public class compAutoMode extends LinearOpMode {
     }
 
     public void resetState() {
-        changeState(programSteps.findSkystone);
+        changeState(programSteps.findColor);
     }
 
     public programSteps getState() {
@@ -153,13 +153,19 @@ public class compAutoMode extends LinearOpMode {
                 telemetry.addData("Front Right Ticks", frontRight.getCurrentPosition());
                 telemetry.addData("Back Left Ticks", backLeft.getCurrentPosition());
                 telemetry.addData("Back Right Ticks", backRight.getCurrentPosition());
-
-                telemetry.addData("Front Left Target", frontLeftTarget);
-                telemetry.addData("Front Right Target", frontRightTarget);
-                telemetry.addData("Back Left Target", backLeftTarget);
-                telemetry.addData("Back Right Target", backRightTarget);
                 telemetry.update();
             }
+
+            frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+            frontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            frontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            backRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            backLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
         } else if (inches == 0) {
             frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -182,7 +188,7 @@ public class compAutoMode extends LinearOpMode {
 
     public void moveHorizontal(double power, double inches) {
 
-        if (inches != 0) {
+        if (inches != 0 && inches != -1) {
 
             frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -225,13 +231,20 @@ public class compAutoMode extends LinearOpMode {
                 telemetry.addData("Front Right Ticks", frontRight.getCurrentPosition());
                 telemetry.addData("Back Left Ticks", backLeft.getCurrentPosition());
                 telemetry.addData("Back Right Ticks", backRight.getCurrentPosition());
-
-                telemetry.addData("Front Left Target", frontLeftTarget);
-                telemetry.addData("Front Right Target", frontRightTarget);
-                telemetry.addData("Back Left Target", backLeftTarget);
-                telemetry.addData("Back Right Target", backRightTarget);
                 telemetry.update();
             }
+
+            frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+            frontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            frontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            backRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            backLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+            //right
         } else if (inches == 0) {
 
             frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -250,7 +263,27 @@ public class compAutoMode extends LinearOpMode {
             backRight.setPower(power);
 
             return;
+            //left
+        } else if (inches == -1) {
+
+            frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+            frontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            frontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            backRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            backLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+            frontLeft.setPower(power);
+            frontRight.setPower(power);
+            backLeft.setPower(-power);
+            backRight.setPower(-power);
+
+            return;
         }
+
     }
 
     public void moveSlide(double power, double inches) {
@@ -264,9 +297,10 @@ public class compAutoMode extends LinearOpMode {
             slide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             while (opModeIsActive() && slide.isBusy()) {
                 telemetry.addData("Slide Ticks", slide.getCurrentPosition());
-                telemetry.addData("Slide Target", slideTarget);
                 telemetry.update();
             }
+            slide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            slide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         } else if (opModeIsActive() && inches == 0) {
             slide.setPower(power);
             slide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -283,9 +317,10 @@ public class compAutoMode extends LinearOpMode {
             lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             lift.setPower(power);
             lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            lift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             while (opModeIsActive() && lift.isBusy()) {
                 telemetry.addData("Lift Ticks", slide.getCurrentPosition());
-                telemetry.addData("Lift Target", liftTarget);
                 telemetry.update();
             }
         } else if (opModeIsActive() && inches == 0) {
@@ -344,6 +379,16 @@ public class compAutoMode extends LinearOpMode {
 
     //positive degrees rotates left, negative rotates right.
     public void rotateRobot(double power, int degrees) {
+
+        frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        frontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        frontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        backRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         resetAngle();
 
@@ -420,13 +465,24 @@ public class compAutoMode extends LinearOpMode {
 
     public void straightenRobot(double power) {
 
+        frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        frontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        frontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        backRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
         if (getAngle() < 0) {
             frontLeft.setPower(power);
             frontRight.setPower(-power);
             backLeft.setPower(power);
             backRight.setPower(-power);
 
-            while (opModeIsActive() && getAngle() < 0) {}
+            while (opModeIsActive() && getAngle() < 0) {
+            }
 
         } else if (getAngle() > 0) {
             frontLeft.setPower(-power);
@@ -434,7 +490,8 @@ public class compAutoMode extends LinearOpMode {
             backLeft.setPower(-power);
             backRight.setPower(power);
 
-            while (opModeIsActive() && getAngle() > 0) {}
+            while (opModeIsActive() && getAngle() > 0) {
+            }
 
         } else {
             return;
@@ -443,14 +500,22 @@ public class compAutoMode extends LinearOpMode {
 
     //state machine
     public enum programSteps {
+        findColor,
         findSkystone,
+        grabSkystone,
         goUnderBridge,
         placeSkystone,
         movePlate,
         stop
     }
 
+    public enum Color {
+        RED,
+        BLUE
+    }
+
     programSteps step;
+    Color color;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -537,9 +602,9 @@ public class compAutoMode extends LinearOpMode {
         VuforiaTrackable red2 = targetsSkyStone.get(6);
         red2.setName("Red Perimeter 2");
         VuforiaTrackable front1 = targetsSkyStone.get(7);
-        front1.setName("Front Perimeter 1");
+        front1.setName("Front Perimeter 1"); //red
         VuforiaTrackable front2 = targetsSkyStone.get(8);
-        front2.setName("Front Perimeter 2");
+        front2.setName("Front Perimeter 2"); //blue
         VuforiaTrackable blue1 = targetsSkyStone.get(9);
         blue1.setName("Blue Perimeter 1");
         VuforiaTrackable blue2 = targetsSkyStone.get(10);
@@ -658,16 +723,34 @@ public class compAutoMode extends LinearOpMode {
 //   ANIME GIRLS O o O
         while (opModeIsActive()) {
             switch (step) {
-                case findSkystone:
-                    moveForward(.5, 12);
+                case findColor:
                     targetsSkyStone.activate();
-                    skystoneVisible = false;
                     navIsVisible = false;
-//                    while (opModeIsActive() && !navIsVisible) {}
-                    //strafe left until the target is found
-                    moveHorizontal(.25, 0);
+                    moveForward(.5, 4);
+                    rotateRobot(1, -60);
+                    while (!navIsVisible) {
+                        if (((VuforiaTrackableDefaultListener) front1.getListener()).isVisible()) {
+                            color = Color.RED;
+                            navIsVisible = true;
+                        } else if (((VuforiaTrackableDefaultListener) front2.getListener()).isVisible()) {
+                            color = Color.BLUE;
+                            navIsVisible = true;
+                        }
+                        changeState(programSteps.findSkystone);
+                        break;
+                    }
+                case findSkystone:
+                    moveForward(.5, 8);
+                    if (color == Color.RED) {
+                        moveHorizontal(.25, 0);
+                    } else if (color == Color.BLUE) {
+                        moveHorizontal(.25, -1);
+                    }
+
+                    skystoneVisible = false;
                     while (opModeIsActive() && !skystoneVisible) {
                         if (((VuforiaTrackableDefaultListener) stoneTarget.getListener()).isVisible()) {
+                            stopRobot();
                             skystoneVisible = true;
                             break;
                         }
@@ -682,24 +765,35 @@ public class compAutoMode extends LinearOpMode {
                         }
                         //declaration of vector
                         VectorF position = lastLocation.getTranslation();
+                        if (position.get(1) / mmPerInch > 0) {
+                            moveHorizontal(.25, 0);
+                        } else if (position.get(1) / mmPerInch < 0) {
+                            moveHorizontal(.25, -1);
+                        }
+
                         if (position.get(1) / mmPerInch <= 0.025f || position.get(1) / mmPerInch >= -0.025f) {
                             stopRobot();
                             break;
                         }
                     }
-
+                    targetsSkyStone.deactivate();
+                    changeState(programSteps.grabSkystone);
+                    break;
+                case grabSkystone:
                     //once perpendicular, adjust robot to grab the block.
                     moveSlide(.5, -6);
                     moveForward(.5, 7);
-                    //moveHorizontal(.5, 6.5);
+                    moveHorizontal(.5, 4);
                     moveClaw(.7);
 //                    straightenRobot(.2);
 //                    rotateRobot(.2, -5);
                     moveForward(.2, 8);
                     moveClaw(-.2);
+                    sleep(500);
                     moveSlide(.4, 6);
                     moveForward(.5, -12);
                     changeState(programSteps.goUnderBridge);
+                    break;
                 case goUnderBridge:
                     moveForward(.5, -13);
                     rotateRobot(1, -90);
