@@ -21,11 +21,13 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefau
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 
+import java.io.BufferedReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.*;
 
 import java.util.Scanner;
+import java.util.concurrent.BrokenBarrierException;
 
 import static org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.DEGREES;
 import static org.firstinspires.ftc.robotcore.external.navigation.AxesOrder.XYZ;
@@ -156,6 +158,11 @@ public class compAutoMode extends LinearOpMode {
                 telemetry.update();
             }
 
+            frontLeft.setPower(0);
+            frontRight.setPower(0);
+            backLeft.setPower(0);
+            backRight.setPower(0);
+
             frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -234,6 +241,11 @@ public class compAutoMode extends LinearOpMode {
                 telemetry.update();
             }
 
+            frontLeft.setPower(0);
+            frontRight.setPower(0);
+            backLeft.setPower(0);
+            backRight.setPower(0);
+
             frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -299,6 +311,7 @@ public class compAutoMode extends LinearOpMode {
                 telemetry.addData("Slide Ticks", slide.getCurrentPosition());
                 telemetry.update();
             }
+            slide.setPower(0);
             slide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             slide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         } else if (opModeIsActive() && inches == 0) {
@@ -323,6 +336,9 @@ public class compAutoMode extends LinearOpMode {
                 telemetry.addData("Lift Ticks", slide.getCurrentPosition());
                 telemetry.update();
             }
+            lift.setPower(0);
+            lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            lift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         } else if (opModeIsActive() && inches == 0) {
             lift.setPower(power);
             lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -544,22 +560,28 @@ public class compAutoMode extends LinearOpMode {
         frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        slide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        slide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        slide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         telemetry.addData("Status", "Encoders Ready");
         telemetry.update();
 
         //init gyro
-        telemetry.addData("Status", "Initializing Gyro");
+        telemetry.addData("Status", "Initializing IMU");
         telemetry.update();
 
         BNO055IMU.Parameters parametersIMU = new BNO055IMU.Parameters();
@@ -572,7 +594,7 @@ public class compAutoMode extends LinearOpMode {
         parametersIMU.loggingTag = "IMU";
         imu.initialize(parametersIMU);
 
-        telemetry.addData("Status", "Gyro Ready");
+        telemetry.addData("Status", "IMU Ready");
         telemetry.update();
 
         //init vuforia
@@ -790,12 +812,12 @@ public class compAutoMode extends LinearOpMode {
                     moveForward(.5, 7);
                     moveHorizontal(.5, 4);
                     moveClaw(.7);
-                    straightenRobot(.2);
+ //                   straightenRobot(.2);
 //                    rotateRobot(.2, -5);
                     moveForward(.2, 8);
                     moveClaw(-.2);
 //                    sleep(500);
-//                    moveSlide(.4, 6);
+                    moveSlide(.4, 6);
                     moveForward(.5, -12);
                     changeState(programSteps.goUnderBridge);
                     break;
