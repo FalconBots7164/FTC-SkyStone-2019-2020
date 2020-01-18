@@ -101,7 +101,7 @@ public class compAutoMode extends LinearOpMode {
     }
 
     public void resetState() {
-        changeState(programSteps.findColor);
+        changeState(programSteps.findSkystone);
     }
 
     public programSteps getState() {
@@ -728,7 +728,7 @@ public class compAutoMode extends LinearOpMode {
                     targetsSkyStone.activate();
                     navIsVisible = false;
                     moveForward(.5, 4);
-                    rotateRobot(1, -60);
+                    rotateRobot(1, -180);
                     while (!navIsVisible) {
                         if (((VuforiaTrackableDefaultListener) front1.getListener()).isVisible()) {
                             color = Color.RED;
@@ -740,7 +740,11 @@ public class compAutoMode extends LinearOpMode {
                         changeState(programSteps.findSkystone);
                         break;
                     }
+                    break;
                 case findSkystone:
+                    color = Color.RED;
+                    targetsSkyStone.activate();
+
                     moveForward(.5, 8);
                     if (color == Color.RED) {
                         moveHorizontal(.25, 0);
@@ -782,15 +786,15 @@ public class compAutoMode extends LinearOpMode {
                     break;
                 case grabSkystone:
                     //once perpendicular, adjust robot to grab the block.
-                    moveSlide(.5, -6);
+                    moveSlide(1, -6);
                     moveForward(.5, 7);
                     moveHorizontal(.5, 4);
                     moveClaw(.7);
-//                    straightenRobot(.2);
+                    straightenRobot(.2);
 //                    rotateRobot(.2, -5);
                     moveForward(.2, 8);
                     moveClaw(-.2);
-                    sleep(500);
+//                    sleep(500);
                     moveSlide(.4, 6);
                     moveForward(.5, -12);
                     changeState(programSteps.goUnderBridge);
