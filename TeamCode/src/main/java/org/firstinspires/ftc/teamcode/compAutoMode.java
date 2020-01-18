@@ -790,12 +790,12 @@ public class compAutoMode extends LinearOpMode {
                     moveForward(.5, 7);
                     moveHorizontal(.5, 4);
                     moveClaw(.7);
-//                    straightenRobot(.2);
+                    straightenRobot(.2);
 //                    rotateRobot(.2, -5);
                     moveForward(.2, 8);
                     moveClaw(-.2);
 //                    sleep(500);
-                    moveSlide(.4, 3);
+//                    moveSlide(.4, 6);
                     moveForward(.5, -12);
                     changeState(programSteps.goUnderBridge);
                     break;
