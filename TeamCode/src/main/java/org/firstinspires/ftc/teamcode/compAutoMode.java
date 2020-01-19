@@ -759,7 +759,7 @@ public class compAutoMode extends LinearOpMode {
                 case findColor:
                     targetsSkyStone.activate();
                     navIsVisible = false;
-                    moveForward(.5, -20);
+                    moveForward(.5, -24);
                    // rotateRobot(.15, 0);
                     while (!navIsVisible) {
                         if (((VuforiaTrackableDefaultListener) red2.getListener()).isVisible()) {
@@ -776,7 +776,7 @@ public class compAutoMode extends LinearOpMode {
                             //rotateRobot(.4, 5);
                         }
                     }
-                    moveForward(1, 12);
+                    moveForward(1, 16);
                     rotateRobot(1, 180);
                        // rotateRobot(1, (int)(getAngle()));
                         changeState(programSteps.findSkystone);
