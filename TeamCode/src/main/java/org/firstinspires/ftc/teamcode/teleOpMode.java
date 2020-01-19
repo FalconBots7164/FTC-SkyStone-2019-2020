@@ -155,6 +155,10 @@ public class teleOpMode extends OpMode {
         }
         telemetry.addData("Gamepad 1 Toggle:", isToggledA);
         telemetry.addData("Gamepad 2 Toggle:", isToggledB);
+        telemetry.addData("Front Right Power:", frontRight.getPower());
+        telemetry.addData("Front Left Power:", frontLeft.getPower());
+        telemetry.addData("Back Right Power:", backRight.getPower());
+        telemetry.addData("Back Left Power:", backLeft.getPower());
         telemetry.addData("Hooker", hooker.getPosition());
     }
 }
