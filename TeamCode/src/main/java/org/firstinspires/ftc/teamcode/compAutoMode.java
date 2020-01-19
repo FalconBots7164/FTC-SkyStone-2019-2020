@@ -809,12 +809,12 @@ public class compAutoMode extends LinearOpMode {
                 case grabSkystone:
                     //once perpendicular, adjust robot to grab the block.
                     moveSlide(1, -6);
-                    moveForward(.5, 7);
+                    moveForward(.5, 10);
                     moveHorizontal(.5, 4);
                     moveClaw(.7);
  //                   straightenRobot(.2);
 //                    rotateRobot(.2, -5);
-                    moveForward(.2, 8);
+                    moveForward(.2, 11);
                     moveClaw(-.2);
 //                    sleep(500);
                     moveSlide(.4, 6);
