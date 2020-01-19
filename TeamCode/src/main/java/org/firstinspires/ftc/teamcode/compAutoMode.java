@@ -46,6 +46,7 @@ public class compAutoMode extends LinearOpMode {
     private final static double wheelDiameter = 4.0;
     private static double wheelGearRatio = 1.0;
     private final static double encoderTicksPerInch = (ticksPerRevolution * wheelGearRatio) / (wheelDiameter * Math.PI);
+    int counter = 0;
 
     private static final float mmPerInch = 25.4f;
     private static final float mmTargetHeight = (6) * mmPerInch;          // the height of the center of the target image above the floor
@@ -88,7 +89,7 @@ public class compAutoMode extends LinearOpMode {
 
     //device variables
     DcMotor frontLeft, frontRight, backLeft, backRight, lift, slide;
-    Servo claw;
+    Servo claw, hooker;
 
     //gyro variables
     double globalAngle;
@@ -264,11 +265,6 @@ public class compAutoMode extends LinearOpMode {
             backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-            frontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            frontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            backRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            backLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
             frontLeft.setPower(-power);
             frontRight.setPower(-power);
             backLeft.setPower(power);
@@ -282,11 +278,6 @@ public class compAutoMode extends LinearOpMode {
             frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-            frontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            frontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            backRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            backLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
             frontLeft.setPower(power);
             frontRight.setPower(power);
@@ -348,6 +339,10 @@ public class compAutoMode extends LinearOpMode {
 
     public void moveClaw(double position) {
         claw.setPosition(position);
+    }
+
+    public void moveHooker(double position) {
+        hooker.setPosition(position);
     }
 
 
@@ -544,8 +539,11 @@ public class compAutoMode extends LinearOpMode {
         lift = hardwareMap.dcMotor.get("Lift");
         slide = hardwareMap.dcMotor.get("Slide");
         claw = hardwareMap.servo.get("Claw");
+        hooker = hardwareMap.servo.get("Hooker");
         imu = hardwareMap.get(BNO055IMU.class, "IMU");
         webcamName = hardwareMap.get(WebcamName.class, "Webcam 1");
+
+        hooker.setPosition(0);
 
         //make all motor directions uniform
         frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -767,11 +765,20 @@ public class compAutoMode extends LinearOpMode {
                     color = Color.RED;
                     targetsSkyStone.activate();
 
-                    moveForward(.5, 8);
+//                    int frontRightCounter = 0;
+//                    int backLeftCounter = 0;
+//                    int backRightCounter = 0;
+
+                    frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                    frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                    backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                    backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+                    moveForward(1, 8);
                     if (color == Color.RED) {
-                        moveHorizontal(.25, 0);
+                        moveHorizontal(.1, 0);
                     } else if (color == Color.BLUE) {
-                        moveHorizontal(.25, -1);
+                        moveHorizontal(.1, -1);
                     }
 
                     skystoneVisible = false;
@@ -798,8 +805,15 @@ public class compAutoMode extends LinearOpMode {
                             moveHorizontal(.25, -1);
                         }
 
-                        if (position.get(1) / mmPerInch <= 0.025f || position.get(1) / mmPerInch >= -0.025f) {
+                        if (position.get(1) / mmPerInch <= 0.02f || position.get(1) / mmPerInch >= -0.02f) {
                             stopRobot();
+
+                            counter = Math.abs(frontLeft.getCurrentPosition() / (int)(encoderTicksPerInch));
+//                            backLeftCounter = backLeft.getCurrentPosition() / (int)(encoderTicksPerInch);
+//                            frontRightCounter = frontRight.getCurrentPosition() / (int)(encoderTicksPerInch);
+//                            backRightCounter = backRight.getCurrentPosition() / (int)(encoderTicksPerInch);
+
+
                             break;
                         }
                     }
@@ -808,31 +822,44 @@ public class compAutoMode extends LinearOpMode {
                     break;
                 case grabSkystone:
                     //once perpendicular, adjust robot to grab the block.
-                    moveSlide(1, -6);
-                    moveForward(.5, 10);
-                    moveHorizontal(.5, 4);
+                    moveSlide(.25, -6);
+                    moveForward(1, 7);
+//                    if (color == Color.RED) {
+//                        moveHorizontal(.5, 4);
+//                    }
                     moveClaw(.7);
- //                   straightenRobot(.2);
+//                    straightenRobot(.2);
 //                    rotateRobot(.2, -5);
-                    moveForward(.2, 11);
+                    moveForward(.5, 11.5);
                     moveClaw(-.2);
-//                    sleep(500);
-                    moveSlide(.4, 6);
-                    moveForward(.5, -12);
+                    sleep(500);
+                    moveSlide(.25, 6);
+                    moveForward(1, -21);
                     changeState(programSteps.goUnderBridge);
                     break;
                 case goUnderBridge:
-                    moveForward(.5, -13);
                     rotateRobot(1, -90);
-                    moveForward(1, 26);
+//                    moveForward(1, 26 + counter); //use to park under bridge only
+                    moveForward(1, 80 + counter);
+                    rotateRobot(1, 90);
                     changeState(programSteps.placeSkystone);
                     break;
 
                 case placeSkystone:
+                    moveForward(.7, 19.5);
+                    moveHooker(1);
+                    moveLift(.4, 3);
+                    moveSlide(.25, -6);
+                    moveClaw(1);
+                    //moveForward(1, 1);
                     changeState(programSteps.movePlate);
                     break;
 
                 case movePlate:
+                    moveForward(.8, -33);
+                    moveSlide(.25, 6);
+                    moveLift(.4, -3);
+                   //moveHorizontal(.7, -79);
                     changeState(programSteps.stop);
                     break;
 
