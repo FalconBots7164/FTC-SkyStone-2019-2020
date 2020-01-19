@@ -21,6 +21,7 @@ public class teleOpMode extends OpMode {
     boolean isToggledB = false;
     boolean lockB = false;
     boolean strafeMode = false;
+    boolean isOpen = false;
    // boolean testClaw = false;
 
 
@@ -136,12 +137,16 @@ public class teleOpMode extends OpMode {
 
         //servo
         if (gamepad2.y) {
-            claw.setPosition(.5);
+            isOpen = true;
+            if (isOpen == true) {
+                //boolean oValue = isOpen;
+                claw.setPosition(.5);
+            }
         }
         else {
+            isOpen = false;
             claw.setPosition(0);
         }
-
         if (gamepad2.x) {
             hooker.setPosition(1.0);
         }
@@ -151,6 +156,5 @@ public class teleOpMode extends OpMode {
         telemetry.addData("Gamepad 1 Toggle:", isToggledA);
         telemetry.addData("Gamepad 2 Toggle:", isToggledB);
         telemetry.addData("Hooker", hooker.getPosition());
-
     }
 }
