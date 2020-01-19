@@ -104,7 +104,7 @@ public class compAutoMode extends LinearOpMode {
     }
 
     public void resetState() {
-        changeState(programSteps.findSkystone);
+        changeState(programSteps.findColor);
     }
 
     public programSteps getState() {
@@ -194,6 +194,8 @@ public class compAutoMode extends LinearOpMode {
         }
     }
 
+
+    //positive right, negative left
     public void moveHorizontal(double power, double inches) {
 
         if (inches != 0 && inches != -1) {
@@ -257,7 +259,7 @@ public class compAutoMode extends LinearOpMode {
             backRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             backLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-            //right
+            //left
         } else if (inches == 0) {
 
             frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -271,7 +273,7 @@ public class compAutoMode extends LinearOpMode {
             backRight.setPower(power);
 
             return;
-            //left
+            //right
         } else if (inches == -1) {
 
             frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -371,11 +373,13 @@ public class compAutoMode extends LinearOpMode {
         Orientation angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
         double deltaAngle = angles.firstAngle - lastAngles.firstAngle;
 
-        //Rotation only returned from -180 to 180 and will begin to count backwards after the threshold.
-        //Ex: Going beyond 180 will start counting backwards towards -179, -178, -177, etc, which throws off the rotations.
-        //So, if rotation is greater than 180 or less than -180,
-        //it must be changed to be within the threshold -180 <= x <= 180.
-        //The delta rotation is then added to the global rotation.
+        /*
+        Rotation only returned from -180 to 180 and will begin to count backwards after the threshold.
+        Ex: Going beyond 180 will start counting backwards towards -179, -178, -177, etc, which throws off the rotations.
+        So, if rotation is greater than 180 or less than -180, it must be changed to be within the threshold -180 <= x <= 180.
+        The delta rotation is then added to the global rotation.
+         */
+
         if (deltaAngle < -180) {
             deltaAngle += 360;
         } else if (deltaAngle > 180) {
@@ -419,6 +423,12 @@ public class compAutoMode extends LinearOpMode {
 
         //exit method if there is no need to rotate
         else {
+
+            frontLeft.setPower(power);
+            frontRight.setPower(-power);
+            backLeft.setPower(power);
+            backRight.setPower(-power);
+
             return;
         }
 
@@ -474,6 +484,7 @@ public class compAutoMode extends LinearOpMode {
 
     }
 
+    //deprecated, don't use (doesn't really work anyway)
     public void straightenRobot(double power) {
 
         frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -517,6 +528,7 @@ public class compAutoMode extends LinearOpMode {
         goUnderBridge,
         placeSkystone,
         movePlate,
+        parkRobot,
         stop
     }
 
@@ -738,32 +750,40 @@ public class compAutoMode extends LinearOpMode {
         waitForStart();
 
         resetState();
-//For bot to know what side its on
-// Find certain pic -- tell if its red
-// else its blue
-//   ANIME GIRLS O o O
+        //For bot to know what side its on
+        // Find certain pic -- tell if its red
+        // else its blue
+        //   ANIME GIRLS O o O
         while (opModeIsActive()) {
             switch (step) {
                 case findColor:
                     targetsSkyStone.activate();
                     navIsVisible = false;
-                    moveForward(.5, 4);
-                    rotateRobot(1, -180);
+                    moveForward(.5, -20);
+                   // rotateRobot(.15, 0);
                     while (!navIsVisible) {
-                        if (((VuforiaTrackableDefaultListener) front1.getListener()).isVisible()) {
+                        if (((VuforiaTrackableDefaultListener) red2.getListener()).isVisible()) {
+                            stopRobot();
                             color = Color.RED;
                             navIsVisible = true;
-                        } else if (((VuforiaTrackableDefaultListener) front2.getListener()).isVisible()) {
+                            break;
+                        } else if (((VuforiaTrackableDefaultListener) blue1.getListener()).isVisible()) {
+                            stopRobot();
                             color = Color.BLUE;
                             navIsVisible = true;
+                            break;
+                        } else {
+                            //rotateRobot(.4, 5);
                         }
+                    }
+                    moveForward(1, 12);
+                    rotateRobot(1, 180);
+                       // rotateRobot(1, (int)(getAngle()));
                         changeState(programSteps.findSkystone);
                         break;
-                    }
-                    break;
                 case findSkystone:
-                    color = Color.RED;
-                    targetsSkyStone.activate();
+//                    color = Color.RED;
+//                    targetsSkyStone.activate();
 
 //                    int frontRightCounter = 0;
 //                    int backLeftCounter = 0;
@@ -774,10 +794,10 @@ public class compAutoMode extends LinearOpMode {
                     backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                     backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-                    moveForward(1, 8);
-                    if (color == Color.RED) {
+//                    moveForward(1, 8);
+                    if (opModeIsActive() && color == Color.RED) {
                         moveHorizontal(.1, 0);
-                    } else if (color == Color.BLUE) {
+                    } else if (opModeIsActive() && color == Color.BLUE) {
                         moveHorizontal(.1, -1);
                     }
 
@@ -808,7 +828,7 @@ public class compAutoMode extends LinearOpMode {
                         if (position.get(1) / mmPerInch <= 0.02f || position.get(1) / mmPerInch >= -0.02f) {
                             stopRobot();
 
-                            counter = Math.abs(frontLeft.getCurrentPosition() / (int)(encoderTicksPerInch));
+                            counter = Math.abs(frontLeft.getCurrentPosition() / (int) (encoderTicksPerInch));
 //                            backLeftCounter = backLeft.getCurrentPosition() / (int)(encoderTicksPerInch);
 //                            frontRightCounter = frontRight.getCurrentPosition() / (int)(encoderTicksPerInch);
 //                            backRightCounter = backRight.getCurrentPosition() / (int)(encoderTicksPerInch);
@@ -823,30 +843,40 @@ public class compAutoMode extends LinearOpMode {
                 case grabSkystone:
                     //once perpendicular, adjust robot to grab the block.
                     moveSlide(.25, -6);
-                    moveForward(1, 7);
-//                    if (color == Color.RED) {
-//                        moveHorizontal(.5, 4);
-//                    }
+                    moveForward(1, 10);
+                    if (opModeIsActive() && color == Color.BLUE) {
+                        moveHorizontal(.25, 9);
+                        rotateRobot(.5, 6);
+                    }
                     moveClaw(.7);
 //                    straightenRobot(.2);
-//                    rotateRobot(.2, -5);
-                    moveForward(.5, 11.5);
+                    moveForward(.5, 6);
                     moveClaw(-.2);
                     sleep(500);
                     moveSlide(.25, 6);
-                    moveForward(1, -21);
+                    moveForward(1, -13);
                     changeState(programSteps.goUnderBridge);
                     break;
                 case goUnderBridge:
-                    rotateRobot(1, -90);
+                    if (opModeIsActive() && color == Color.RED) {
+                        rotateRobot(1, -90);
+                    }
+                    else if (opModeIsActive() && color == Color.BLUE) {
+                        rotateRobot(1, 90);
+                    }
 //                    moveForward(1, 26 + counter); //use to park under bridge only
-                    moveForward(1, 80 + counter);
-                    rotateRobot(1, 90);
+                    moveForward(1, 86 + counter);
+                    if (opModeIsActive() && color == Color.RED) {
+                        rotateRobot(1, 90);
+                    }
+                    else if (opModeIsActive() && color == Color.BLUE) {
+                        rotateRobot(1, -90);
+                    }
                     changeState(programSteps.placeSkystone);
                     break;
 
                 case placeSkystone:
-                    moveForward(.7, 19.5);
+                    moveForward(.7, 11.5);
                     moveHooker(1);
                     moveLift(.4, 3);
                     moveSlide(.25, -6);
@@ -856,10 +886,16 @@ public class compAutoMode extends LinearOpMode {
                     break;
 
                 case movePlate:
-                    moveForward(.8, -33);
+                    moveForward(.8, -32);
                     moveSlide(.25, 6);
                     moveLift(.4, -3);
-                   //moveHorizontal(.7, -79);
+                    moveHooker(0);
+                    if (opModeIsActive() && color == Color.RED) {
+                        moveHorizontal(.7, -82);
+                    }
+                    else if (color == Color.BLUE) {
+                        moveHorizontal(.7, 82);
+                    }
                     changeState(programSteps.stop);
                     break;
 
