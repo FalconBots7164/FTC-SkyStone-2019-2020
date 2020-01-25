@@ -851,7 +851,7 @@ public class compAutoMode extends LinearOpMode {
                     moveClaw(.6);
                     sleep(500);
 //                    straightenRobot(.2);
-                    moveForward(.5, 6);
+                    moveForward(.5, 7);
                     moveClaw(-.2);
                     sleep(500);
                     moveSlide(.25, 6);
@@ -866,7 +866,7 @@ public class compAutoMode extends LinearOpMode {
                         rotateRobot(1, 90);
                     }
 //                    moveForward(1, 26 + counter); //use to park under bridge only
-                    moveForward(1, 86 + counter);
+                    moveForward(1, 92 + counter);
                     if (opModeIsActive() && color == Color.RED) {
                         rotateRobot(1, 90);
                     }
@@ -887,16 +887,19 @@ public class compAutoMode extends LinearOpMode {
                     break;
 
                 case movePlate:
-                    moveForward(.8, -38);
+                    moveForward(.8, -44);
                     moveSlide(.25, 6);
                     moveLift(.4, -3);
                     moveClaw(-.2);
                     moveHooker(0);
                     if (opModeIsActive() && color == Color.RED) {
-                        moveHorizontal(.7, -55);
+                        moveHorizontal(.7, -40);
+                        moveForward(1, 20);
+                        moveHorizontal(.7, 20);
+                        moveHorizontal(.7, -40);
                     }
                     else if (color == Color.BLUE) {
-                        moveHorizontal(.7, 55);
+                        moveHorizontal(.7, 60);
                     }
                     changeState(programSteps.stop);
                     break;
