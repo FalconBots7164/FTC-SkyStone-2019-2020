@@ -105,12 +105,12 @@ public class teleOpMode extends OpMode {
 
         //speed toggleA
         if (gamepad1.a && !isToggledA && !lockA) {
-                powerA = .25;
+                powerA = 0.5;
                 isToggledA = true;
                 lockA = true;
             }
             else if (gamepad1.a && isToggledA && !lockA) {
-                powerA = .7;
+                powerA = 1.0;
                 isToggledA = false;
                 lockA = true;
             }
