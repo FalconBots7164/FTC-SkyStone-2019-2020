@@ -15,7 +15,7 @@ public class teleOpMode extends OpMode {
 
     double powerA = .7;
     double powerB = .7;
-    double strafePower = 1.0;
+    double strafePower = 2.0;
     boolean isToggledA = false;
     boolean lockA = false;
     boolean isToggledB = false;
@@ -57,31 +57,34 @@ public class teleOpMode extends OpMode {
         backRight.setPower(gamepad1.left_stick_y * -powerA);
 
         //strafe - completely fixed, do not touch
-        if (gamepad1.dpad_right && !strafeMode) {
+        if (gamepad1.x && strafeMode == false) {
             strafeMode = true;
             if (strafeMode) {
-                frontLeft.setPower(-strafePower * .7);
-                frontRight.setPower(-strafePower * .7);
-                backLeft.setPower(strafePower * .7);
-                backRight.setPower(strafePower * .7);
+                strafePower = 1.0;
+            }
+        } 
+        else if (gamepad1.x && strafeMode == true) {
+            strafeMode= false;
+            if (strafeMode == false){
+                strafePower = 2.0;
             }
         }
-        else {
-            strafeMode = false;
-            strafePower = 1.0;
+
+        if (gamepad1.dpad_right) {
+                frontLeft.setPower(-strafePower);
+                frontRight.setPower(-strafePower);
+                backLeft.setPower(strafePower);
+                backRight.setPower(strafePower);
         }
-        if (gamepad1.dpad_left && !strafeMode) {
-            strafeMode = true;
-            if (strafeMode) {
-                frontLeft.setPower(strafePower * .7);
-                frontRight.setPower(strafePower * .7);
-                backLeft.setPower(-strafePower * .7);
-                backRight.setPower(-strafePower * .7);
-            }
-        }
-        else {
-            strafeMode = false;
-            strafePower = 1.0;
+    //    else {
+      //      strafeMode = false;
+        //    strafePower = 2.0;
+     //   }
+        if (gamepad1.dpad_left) {
+                frontLeft.setPower(strafePower);
+                frontRight.setPower(strafePower);
+                backLeft.setPower(-strafePower);
+                backRight.setPower(-strafePower);
         }
 
         //forward/backwards
@@ -105,12 +108,12 @@ public class teleOpMode extends OpMode {
 
         //speed toggleA
         if (gamepad1.a && !isToggledA && !lockA) {
-                powerA = 0.5;
+                powerA = 0.25;
                 isToggledA = true;
                 lockA = true;
             }
             else if (gamepad1.a && isToggledA && !lockA) {
-                powerA = 1.0;
+                powerA = 0.7;
                 isToggledA = false;
                 lockA = true;
             }
