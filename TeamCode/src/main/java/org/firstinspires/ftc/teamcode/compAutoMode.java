@@ -759,7 +759,7 @@ public class compAutoMode extends LinearOpMode {
                 case findColor:
                     targetsSkyStone.activate();
                     navIsVisible = false;
-                    moveForward(.5, -24);
+                    moveForward(.5, -22);
                    // rotateRobot(.15, 0);
                     while (!navIsVisible) {
                         if (((VuforiaTrackableDefaultListener) red2.getListener()).isVisible()) {
@@ -776,7 +776,7 @@ public class compAutoMode extends LinearOpMode {
                             //rotateRobot(.4, 5);
                         }
                     }
-                    moveForward(1, 16);
+                    moveForward(1, 14);
                     rotateRobot(1, 180);
                        // rotateRobot(1, (int)(getAngle()));
                         changeState(programSteps.findSkystone);
@@ -825,7 +825,7 @@ public class compAutoMode extends LinearOpMode {
                             moveHorizontal(.25, -1);
                         }
 
-                        if (position.get(1) / mmPerInch <= 0.02f || position.get(1) / mmPerInch >= -0.02f) {
+                        if (position.get(1) / mmPerInch <= 0.015f || position.get(1) / mmPerInch >= -0.015f) {
                             stopRobot();
 
                             counter = Math.abs(frontLeft.getCurrentPosition() / (int) (encoderTicksPerInch));
@@ -848,13 +848,14 @@ public class compAutoMode extends LinearOpMode {
                         moveHorizontal(.25, 9);
                         rotateRobot(.5, 6);
                     }
-                    moveClaw(.7);
+                    moveClaw(.6);
+                    sleep(500);
 //                    straightenRobot(.2);
                     moveForward(.5, 6);
                     moveClaw(-.2);
                     sleep(500);
                     moveSlide(.25, 6);
-                    moveForward(1, -13);
+                    moveForward(1, -3);
                     changeState(programSteps.goUnderBridge);
                     break;
                 case goUnderBridge:
@@ -880,21 +881,22 @@ public class compAutoMode extends LinearOpMode {
                     moveHooker(1);
                     moveLift(.4, 3);
                     moveSlide(.25, -6);
-                    moveClaw(1);
+                    moveClaw(.6);
                     //moveForward(1, 1);
                     changeState(programSteps.movePlate);
                     break;
 
                 case movePlate:
-                    moveForward(.8, -32);
+                    moveForward(.8, -38);
                     moveSlide(.25, 6);
                     moveLift(.4, -3);
+                    moveClaw(-.2);
                     moveHooker(0);
                     if (opModeIsActive() && color == Color.RED) {
-                        moveHorizontal(.7, -82);
+                        moveHorizontal(.7, -55);
                     }
                     else if (color == Color.BLUE) {
-                        moveHorizontal(.7, 82);
+                        moveHorizontal(.7, 55);
                     }
                     changeState(programSteps.stop);
                     break;

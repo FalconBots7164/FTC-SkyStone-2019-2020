@@ -20,6 +20,8 @@ public class teleOpMode extends OpMode {
     boolean lockA = false;
     boolean isToggledB = false;
     boolean lockB = false;
+    boolean isToggledC = false;
+    boolean lockC = false;
     boolean strafeMode = false;
     boolean isOpen = false;
    // boolean testClaw = false;
@@ -55,7 +57,7 @@ public class teleOpMode extends OpMode {
         backRight.setPower(gamepad1.left_stick_y * -powerA);
 
         //strafe - completely fixed, do not touch
-        if (gamepad1.dpad_right && strafeMode == false) {
+        if (gamepad1.dpad_right && !strafeMode) {
             strafeMode = true;
             if (strafeMode) {
                 frontLeft.setPower(-strafePower * .7);
@@ -68,7 +70,7 @@ public class teleOpMode extends OpMode {
             strafeMode = false;
             strafePower = 1.0;
         }
-        if (gamepad1.dpad_left && strafeMode == false) {
+        if (gamepad1.dpad_left && !strafeMode) {
             strafeMode = true;
             if (strafeMode) {
                 frontLeft.setPower(strafePower * .7);
@@ -136,17 +138,32 @@ public class teleOpMode extends OpMode {
 
 
         //servo
-        if (gamepad2.y) {
-            isOpen = true;
-            if (isOpen == true) {
-                //boolean oValue = isOpen;
-                claw.setPosition(.5);
-            }
+//        if (gamepad2.y) {
+//            isOpen = true;
+//            if (isOpen == true) {
+//                //boolean oValue = isOpen;
+//                claw.setPosition(.5);
+//            }
+//        }
+//        else {
+//            isOpen = false;
+//            claw.setPosition(0);
+//        }
+
+        if(gamepad2.y && !isToggledC && !lockC) {
+            claw.setPosition(.5);
+            isToggledC = true;
+            lockC = true;
         }
-        else {
-            isOpen = false;
+        else if (gamepad2.y && isToggledC && !lockC) {
             claw.setPosition(0);
+            isToggledC = false;
+            lockC = true;
         }
+        else if (!gamepad2.y && lockC) {
+            lockC = false;
+        }
+
         if (gamepad2.x) {
             hooker.setPosition(1.0);
         }
